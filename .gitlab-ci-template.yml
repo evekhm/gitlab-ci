@@ -1,0 +1,85 @@
+
+#
+# IMPORTANT: Do not rename this file or move to another folder. Doing so would
+#            break the CI pipelines of projects that "include:" this file.
+#
+# REF: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-docker-in-docker-image-from-container-registry
+image: docker:${DOCKER_IMAGE_VERSION}
+
+services:
+- docker:${DOCKER_IMAGE_VERSION}-dind
+
+stages:
+- build-image
+
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_IMAGE_VERSION: 19.03.1
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+
+  # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
+  QA_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_SHORT_SHA}"
+  # Default latest tag for particular branch
+  QA_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_REF_SLUG}"
+
+  MR_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA:-$CI_COMMIT_SHA}"
+  MR_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_SOURCE_BRANCH}"
+
+  # Released Image Artefacts
+  RELEASE_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:${CI_COMMIT_SHORT_SHA}"
+  RELEASE_IMAGE_LATEST: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:latest"
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+after_script:
+  - docker logout ${CI_REGISTRY}
+
+.build_image: &build_image
+  script:
+  - echo $IMAGE
+  - echo $IMAGE_LATEST
+  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+  - docker push ${IMAGE}
+  - docker push ${IMAGE_LATEST}
+
+# Release image when commit to the main branch (e.g. when merge request approved, or directly to the main branch)
+build release image:
+  environment: demo
+  stage: build-image
+  variables:
+    IMAGE: $RELEASE_IMAGE
+    IMAGE_LATEST: $RELEASE_IMAGE_LATEST
+  <<: *build_image
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Build image on Merge Request to the main branch
+build merge request image:
+  environment: test
+  stage: build-image
+  variables:
+    IMAGE: $MR_IMAGE
+    IMAGE_LATEST: $MR_IMAGE_BRANCH
+  <<: *build_image
+  script:
+  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  only:
+    variables:
+      - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+
+# Commit on the feature branch
+build qa image:
+  environment: development
+  stage: build-image
+  variables:
+    IMAGE: $QA_IMAGE
+    IMAGE_LATEST: $QA_IMAGE_BRANCH
+  <<: *build_image
+  only:
+  - branches
+  except:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
