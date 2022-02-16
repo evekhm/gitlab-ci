@@ -38,8 +38,7 @@ after_script:
     - $VARIABLES_FILE
 
 # Release image when commit to the main branch (e.g. when merge request approved, or directly to the main branch)
-.release_image: &release_image
-build release image:
+.release_image:
   environment: demo
   variables:
     IMAGE: $RELEASE_IMAGE
@@ -50,7 +49,7 @@ build release image:
       - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # Build image on Merge Request to the main branch
-.build_mr_image: &build_mr_image
+.build_mr_image:
   environment: test
   variables:
     IMAGE: $MR_IMAGE
@@ -63,7 +62,7 @@ build release image:
       - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
 
 # Commit on the feature branch
-.build_qa_image: &build_qa_image
+.build_qa_image:
   environment: development
   variables:
     IMAGE: $QA_IMAGE
