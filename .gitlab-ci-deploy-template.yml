@@ -1,0 +1,65 @@
+#
+# IMPORTANT: Do not rename this file or move to another folder. Doing so would
+#            break the CI pipelines of projects that "include:" this file.
+#
+
+# Requires $DEPLOY_PROJECT to be set
+# Included Variables
+include:
+  .gitlab-ci-build-vars.yml
+
+stages:
+- deploy-image
+
+.deploy_image: &deploy_image
+  variables: # TO be passed downstream
+    APPLICATION: crd
+  script:
+  - echo "Deploying to project=[$DEPLOY_PROJECT], branch=[$TRIGGER_BRANCH], namespace=[$NAMESPACE]"
+  - source $VARIABLES_FILE
+  only:
+    variables:
+    - $DEPLOY_PROJECT
+  trigger:
+    project: ${DEPLOY_PROJECT}
+    branch: ${TRIGGER_BRANCH}
+
+# Deploy to Demo when commit on the main branch
+deploy to demo:
+  environment: demo
+  stage: deploy-image
+  variables:
+    TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
+  <<: *deploy_image
+  only:
+    variables:
+    - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+
+# Deploy to Test when merge request on the main branch
+build merge request image:
+  environment: test
+  stage: build-image
+  variables:
+    TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
+    NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  <<: *deploy_image
+  script:
+  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  only:
+    variables:
+      - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+
+# Deploy to development when commit to the feature branch
+build qa image:
+  environment: development
+  stage: build-image
+  variables:
+    IMAGE: $QA_IMAGE
+    IMAGE_LATEST: $QA_IMAGE_BRANCH
+  <<: *build_image
+  only:
+  - branches
+  except:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
