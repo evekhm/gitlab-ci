@@ -35,10 +35,6 @@ after_script:
   - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
   - docker push ${IMAGE}
   - docker push ${IMAGE_LATEST}
-  only:
-    variables:
-      - $IMAGE
-      - $IMAGE_LATEST
 
 build image:
   stage: build-image
