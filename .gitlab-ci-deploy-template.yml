@@ -17,7 +17,7 @@ deploy:
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
-    VARIABLES_FILE: ${VARIABLES_FILE}
+    VARIABLES: ${VARIABLES_FILE}
   stage: deploy-image
   only:
     variables:
