@@ -19,17 +19,17 @@ variables:
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-      ENVIRONMENT: demo
-
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-    variables:
-      IMAGE: $MR_IMAGE
-      IMAGE_LATEST: $MR_IMAGE_BRANCH
-      ENVIRONMENT: test
-
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-    variables:
-      IMAGE: $QA_IMAGE
-      IMAGE_LATEST: $QA_IMAGE_BRANCH
-      ENVIRONMENT: development
-
+#      ENVIRONMENT: demo
+#
+#  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+#    variables:
+#      IMAGE: $MR_IMAGE
+#      IMAGE_LATEST: $MR_IMAGE_BRANCH
+#      ENVIRONMENT: test
+#
+#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+#    variables:
+#      IMAGE: $QA_IMAGE
+#      IMAGE_LATEST: $QA_IMAGE_BRANCH
+#      ENVIRONMENT: development
+#
