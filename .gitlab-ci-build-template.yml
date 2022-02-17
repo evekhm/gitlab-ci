@@ -55,6 +55,8 @@ build image:
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
   script:
-    - echo $IMAGE
+    - echo "export IMAGE=$IMAGE > var.env"
     - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+
+
   <<: *build_image
