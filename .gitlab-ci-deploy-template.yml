@@ -12,19 +12,33 @@ stages:
 - deploy-image
 
 deploy:
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    variables:
+      IMAGE: $RELEASE_IMAGE
+      ENVIRONMENT: demo
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    variables:
+      IMAGE: $MR_IMAGE
+      ENVIRONMENT: test
+  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+    variables:
+      IMAGE: $QA_IMAGE
+      ENVIRONMENT: development
   variables:
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
+    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
+    ENV: $ENVIRONMENT
 #    VARIABLES: ${VARIABLES_FILE}
   stage: deploy-image
   only:
     variables:
       - $DEPLOY_PROJECT
   trigger:
-    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-    branch: main
+    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO cannot reference $DEPLOY_PROJECT
+    branch: main #TODO
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
