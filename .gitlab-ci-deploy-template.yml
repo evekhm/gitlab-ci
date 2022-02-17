@@ -14,7 +14,7 @@ stages:
 deploy:
   stage: deploy-image
   variables:
-    TRIGGER_BRANCH: main
+    TRIGGER_BRANCH: xxx
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
@@ -24,18 +24,20 @@ deploy:
     variables:
       IMAGE: $RELEASE_IMAGE
       ENVIRONMENT: demo
+      TRIGGER_BRANCH: main
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     variables:
       IMAGE: $MR_IMAGE
       ENVIRONMENT: test
+      TRIGGER_BRANCH: main
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
       ENVIRONMENT: development
+      TRIGGER_BRANCH: main
   trigger:
-    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-    project: ${DEPLOY_PROJECT} #TODO cannot reference $DEPLOY_PROJECT
-    branch: main #TODO
+    project: ${DEPLOY_PROJECT}
+    branch: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
