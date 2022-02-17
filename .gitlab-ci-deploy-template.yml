@@ -20,6 +20,7 @@ deploy:
   stage: deploy-image
   only:
     variables:
+      - $DEPLOY_PROJECT
   trigger:
     project: $DEPLOY_PROJECT
     branch: main
