@@ -4,6 +4,7 @@ stages:
 deploy:
   stage: deploy-image
   variables:
+    TRIGGER_BRANCH: $TRIGGER_BRANCH
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
