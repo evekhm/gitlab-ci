@@ -20,7 +20,7 @@ deploy:
     IMAGE_TAG: $CONTAINER_TEST_IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
-  stage: deploy
+  stage: deploy-image
   trigger:
     project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
     branch: main
