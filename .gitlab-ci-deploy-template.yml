@@ -59,6 +59,7 @@ create:
   - echo $DEPLOY_PROJECT
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
   - sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+  - cat ${TRIGGER_FILE}
   artifacts:
     paths:
       - ${TRIGGER_FILE}
