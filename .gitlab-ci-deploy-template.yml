@@ -5,8 +5,8 @@
 
 # Requires $DEPLOY_PROJECT to be set
 # Included Variables
-#include:
-#  .gitlab-ci-build-vars.yml
+include:
+  .gitlab-ci-build-vars.yml
 
 stages:
 - create
@@ -47,7 +47,8 @@ stages:
 
 create:
   stage: create
-  script: echo 'Hello'
+  script:
+    - echo 'Hello'
 
 #create:
 #  stage: create
