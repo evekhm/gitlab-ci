@@ -1,25 +1,3 @@
-#variables:
-#  IMAGE: 'default'
-#
-#  # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
-#  QA_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_SHORT_SHA}"
-#  # Default latest tag for particular branch
-#  QA_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_REF_SLUG}"
-#
-#  MR_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA:-$CI_COMMIT_SHA}"
-#  MR_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_SOURCE_BRANCH}"
-#
-#  # Released Image Artefacts
-#  RELEASE_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:${CI_COMMIT_SHORT_SHA}"
-#  RELEASE_IMAGE_LATEST: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:latest"
-#
-#  IMAGE: somevalue
-#  rules:
-#  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#    variables:
-#      IMAGE: $RELEASE_IMAGE
-#      IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-
 variables:
   VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
 
@@ -38,8 +16,9 @@ variables:
   IMAGE: somevalue
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      IMAGE: $RELEASE_IMAGE
-      IMAGE_LATEST: $RELEASE_IMAGE_LATEST
+      variables:
+        IMAGE: $RELEASE_IMAGE
+        IMAGE_LATEST: $RELEASE_IMAGE_LATEST
 #      ENVIRONMENT: demo
 #
 #  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
