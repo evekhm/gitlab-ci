@@ -45,6 +45,7 @@ build image:
   environment: $ENVIRONMENT
   stage: build-image
   <<: *build_image
+  script:
   - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
   - |
     if $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
