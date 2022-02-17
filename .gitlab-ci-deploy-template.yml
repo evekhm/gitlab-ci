@@ -46,29 +46,18 @@ stages:
 #    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
 #    #project: "${PROJECT}"  #TODO
 #    branch: "${TRIGGER_BRANCH}"
+variables:
+  PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
+  TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 create:
   stage: generate-yml
-  variables:
-    PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
-    TRIGGER_FILE: .gitlab-ci-trigger-template.yml
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - pwd
-  - ls $(basename ${PROJECT_PATH})
   - sed 's|__MYVAR__|'"${PROJECT_PATH}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
-
   artifacts:
     paths:
       - ${TRIGGER_FILE}
-
-#create:
-#  stage: create
-#  script:
-#    - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
-#  artifacts:
-#    paths:
-#      - ${CI_PROJECT_DIR}/test.yml
 
 execute:
   stage: deploy-image
@@ -77,3 +66,4 @@ execute:
     - artifact: ${TRIGGER_FILE}
       job: create
     strategy: depend
+
