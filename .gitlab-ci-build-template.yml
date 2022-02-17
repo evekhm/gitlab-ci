@@ -36,6 +36,7 @@ after_script:
 #  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
 #  - docker push ${IMAGE}
 #  - docker push ${IMAGE_LATEST}
+  - mkdir /tmp
   - echo "export IMAGE=$IMAGE " > $VARIABLES_FILE
   artifacts:
     paths:
