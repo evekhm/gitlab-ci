@@ -11,17 +11,14 @@ include:
 stages:
 - deploy-image
 
-after_script:
-- echo VARIABLES_FILE=$VARIABLES_FILE
-
 deploy:
   variables:
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
-    VARIABLES_FILE: $VARIABLES_FILE
-    TEST: $VARIABLES_FILE
+    TEST: ${VARIABLES_FILE}
+    TEST1: ${CI_PROJECT_DIR}/variables.txt
   stage: deploy-image
   only:
     variables:

@@ -28,6 +28,7 @@ before_script:
 
 after_script:
   - docker logout ${CI_REGISTRY}
+  - echo VARIABLES_FILE=$VARIABLES_FILE
 
 .build_image: &build_image
   script:
