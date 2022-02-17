@@ -14,7 +14,6 @@ stages:
 deploy:
   stage: deploy-image
   variables:
-    TRIGGER_BRANCH: xxx
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
@@ -29,7 +28,7 @@ deploy:
     variables:
       IMAGE: $MR_IMAGE
       ENVIRONMENT: test
-      TRIGGER_BRANCH: main
+      TRIGGER_BRANCH: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
@@ -37,7 +36,7 @@ deploy:
       TRIGGER_BRANCH: main
   trigger:
     project: ${DEPLOY_PROJECT}
-    branch: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
+    branch: ${TRIGGER_BRANCH}
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
