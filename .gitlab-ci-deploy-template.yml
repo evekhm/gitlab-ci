@@ -13,13 +13,15 @@ stages:
 
 .deploy_image: &deploy_image
   variables: # TO be passed downstream
-    APPLICATION: crd
+    APPLICATION: $CI_PROJECT_NAME
+    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
+    NAMESPACE: $NAMESPACE
   script:
   - echo "Deploying to project=[$DEPLOY_PROJECT], branch=[$TRIGGER_BRANCH], namespace=[$NAMESPACE]"
   - source $VARIABLES_FILE
   only:
     variables:
-    - $DEPLOY_PROJECT
+      - $DEPLOY_PROJECT
   trigger:
     project: ${DEPLOY_PROJECT}
     branch: ${TRIGGER_BRANCH}
@@ -30,16 +32,17 @@ deploy to demo:
   stage: deploy-image
   variables:
     TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
+    NAMESPACE: "demo"
   <<: *deploy_image
   only:
     variables:
-    - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 
 # Deploy to Test when merge request on the main branch
-build merge request image:
+deploy to test:
   environment: test
-  stage: build-image
+  stage: deploy-image
   variables:
     TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
     NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
@@ -51,13 +54,13 @@ build merge request image:
       - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
 
 # Deploy to development when commit to the feature branch
-build qa image:
+deploy to development:
   environment: development
-  stage: build-image
+  stage: deploy-image
   variables:
-    IMAGE: $QA_IMAGE
-    IMAGE_LATEST: $QA_IMAGE_BRANCH
-  <<: *build_image
+    TRIGGER_BRANCH: $CI_COMMIT_REF_NAME
+    NAMESPACE: $CI_COMMIT_REF_SLUG
+  <<: *deploy_image
   only:
   - branches
   except:
