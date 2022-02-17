@@ -3,6 +3,9 @@
 #            break the CI pipelines of projects that "include:" this file.
 #
 
+# This file is used to generate trigger yml
+# This is needed in for project inside trigger to be a static string, since dynamic variable subsitution is not working.
+# Also IMAGE TAG is passed as a variable
 # Requires $DEPLOY_PROJECT to be set
 # Included Variables
 include:
@@ -44,17 +47,18 @@ stages:
 #    #project: "${PROJECT}"  #TODO
 #    branch: "${TRIGGER_BRANCH}"
 
-create yml:
+create:
   stage: generate-yml
   variables:
     PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
+    TRIGGER_FILE: .gitlab-ci-trigger-template.yml
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - ls
-  - ls $(basename ${PROJECT_PATH})
+  - sed 's|__MYVAR__|'"${PROJECT_PATH}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+
   artifacts:
     paths:
-      - $(basename ${PROJECT_PATH})/.gitlab-ci-rules.yml
+      - ${TRIGGER_FILE}
 
 #create:
 #  stage: create
@@ -64,10 +68,10 @@ create yml:
 #    paths:
 #      - ${CI_PROJECT_DIR}/test.yml
 
-#execute:
-#  stage: deploy-image
-#  trigger:
-#    include:
-#    - artifact: ${CI_PROJECT_DIR}/test.yml
-#      job: create
-#    strategy: depend
+execute:
+  stage: deploy-image
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: create
+    strategy: depend
