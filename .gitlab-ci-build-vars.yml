@@ -19,7 +19,7 @@ variables:
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-        ENVIRONMENT: demo
+      ENVIRONMENT: demo
 
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     variables:
