@@ -1,4 +1,3 @@
-
 #
 # IMPORTANT: Do not rename this file or move to another folder. Doing so would
 #            break the CI pipelines of projects that "include:" this file.
@@ -31,50 +30,22 @@ after_script:
 
 .build_image: &build_image
   script:
-#  - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
-#  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-#  - docker push ${IMAGE}
-#  - docker push ${IMAGE_LATEST}
-  - echo "export IMAGE=$IMAGE " > $VARIABLES_FILE
+  - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
+  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+  - docker push ${IMAGE}
+  - docker push ${IMAGE_LATEST}
+#  - echo "export IMAGE=$IMAGE " > $VARIABLES_FILE
 #  artifacts:
 #    paths:
 #    - ${VARIABLES_FILE}
-# Release image when commit to the main branch (e.g. when merge request approved, or directly to the main branch)
-build release image:
-  environment: demo
-  stage: build-image
-  variables:
-    IMAGE: $RELEASE_IMAGE
-    IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-  <<: *build_image
-  only:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-# Build image on Merge Request to the main branch
-build merge request image:
-  environment: test
+# Release image when commit to the main branch (e.g. when merge request approved, or directly to the main branch)
+
+build image:
+  environment: $ENVIRONMENT
   stage: build-image
-  variables:
-    IMAGE: $MR_IMAGE
-    IMAGE_LATEST: $MR_IMAGE_BRANCH
   <<: *build_image
-  script:
   - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
   only:
     variables:
-      - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-
-# Commit on the feature branch
-build qa image:
-  environment: development
-  stage: build-image
-  variables:
-    IMAGE: $QA_IMAGE
-    IMAGE_LATEST: $QA_IMAGE_BRANCH
-  <<: *build_image
-  only:
-  - branches
-  except:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      - $IMAGE

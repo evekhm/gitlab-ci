@@ -18,7 +18,6 @@ deploy:
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
 #    VARIABLES: ${VARIABLES_FILE}
-    EVA1: $EVA
   stage: deploy-image
   only:
     variables:
