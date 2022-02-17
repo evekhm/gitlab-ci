@@ -1,0 +1,17 @@
+#
+# IMPORTANT: Do not rename this file or move to another folder. Doing so would
+#            break the CI pipelines of projects that "include:" this file.
+#
+# REF: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-docker-in-docker-image-from-container-registry
+
+# Included Variables
+include:
+  .gitlab-ci-build-vars.yml
+
+stages:
+- test
+
+test:
+  stage: test
+  script:
+    - echo 'Hello'
