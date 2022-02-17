@@ -48,13 +48,13 @@ variables:
 #    #project: "${PROJECT}"  #TODO
 #    branch: "${TRIGGER_BRANCH}"
 
-create:
-  stage: create
-  script:
-    - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/test.yml
+#create:
+#  stage: create
+#  script:
+#    - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
+#  artifacts:
+#    paths:
+#      - ${CI_PROJECT_DIR}/test.yml
 
 #execute:
 #  stage: deploy-image
