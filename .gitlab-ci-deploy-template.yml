@@ -50,9 +50,11 @@ create yml:
     PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
+  - ls
+  - ls $(basename ${PROJECT_PATH})
   artifacts:
     paths:
-      - ${PROJECT_PATH}/.gitlab-ci-rules.yml
+      - $(basename ${PROJECT_PATH})/.gitlab-ci-rules.yml
 
 #create:
 #  stage: create
