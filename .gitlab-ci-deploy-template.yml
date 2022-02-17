@@ -9,9 +9,9 @@
 #  .gitlab-ci-build-vars.yml
 
 stages:
-  - create
-  - execute
-  - deploy-image
+- create
+- execute
+- deploy-image
 
 variables:
   TEST1: "${DEPLOY_PROJECT}"
