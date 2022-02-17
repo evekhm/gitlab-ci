@@ -50,12 +50,15 @@ variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
+before_script:
+  echo ">>>> ${CI_PROJECT_PATH} $CI_PROJECT_NAMESPACE"
+
 create:
   stage: generate-yml
   script:
   - echo $DEPLOY_PROJECT
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - sed 's|__MYVAR__|'"${DEPLOY_PROJECT}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+  - sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
   artifacts:
     paths:
       - ${TRIGGER_FILE}
