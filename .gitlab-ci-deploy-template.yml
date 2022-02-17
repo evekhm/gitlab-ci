@@ -36,8 +36,9 @@ deploy:
       TRIGGER_BRANCH: main
   trigger:
     project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO
+    #branch: main
+    branch: ${TRIGGER_BRANCH}
     #project: ${DEPLOY_PROJECT}
-    branch: main
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
