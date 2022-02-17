@@ -20,8 +20,6 @@ deploy:
   stage: deploy-image
   only:
     variables:
-  before_script:
-  - ls $VARIABLES_FILE
   trigger:
     project: $DEPLOY_PROJECT
     branch: main
