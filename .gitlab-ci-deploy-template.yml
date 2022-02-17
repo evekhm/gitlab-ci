@@ -9,8 +9,7 @@ include:
   .gitlab-ci-build-vars.yml
 
 stages:
-- create
-- execute
+- generate-yml
 - deploy-image
 
 #deploy:
@@ -46,7 +45,7 @@ stages:
 #    branch: "${TRIGGER_BRANCH}"
 
 create:
-  stage: create
+  stage: generate-yml
   script:
     - echo 'Hello'
 
