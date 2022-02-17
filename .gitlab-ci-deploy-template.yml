@@ -36,7 +36,7 @@ deploy:
       TRIGGER_BRANCH: main
   trigger:
     project: ${DEPLOY_PROJECT}
-    branch: ${TRIGGER_BRANCH}
+    branch: main
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
