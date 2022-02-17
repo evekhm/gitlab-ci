@@ -44,21 +44,39 @@ after_script:
 build image:
   environment: $ENVIRONMENT
   stage: build-image
-  <<: *build_image
+#  <<: *build_image
   script:
-  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
-  - |
-    if $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-      echo '11111'
-    fi
-  - |
-    if $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-      echo '22222'
-    fi
-  - |
-    if $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      echo '3333'
-    fi
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    variables:
+      IMAGE: $RELEASE_IMAGE
+      IMAGE_LATEST: $RELEASE_IMAGE_LATEST
+      ENVIRONMENT: demo
+
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+    variables:
+      IMAGE: $MR_IMAGE
+      IMAGE_LATEST: $MR_IMAGE_BRANCH
+      ENVIRONMENT: test
+
+  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+    variables:
+      IMAGE: $QA_IMAGE
+      IMAGE_LATEST: $QA_IMAGE_BRANCH
+      ENVIRONMENT: development
+  - echo $IMAGE
+#  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+#  - |
+#    if $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+#      echo '11111'
+#    fi
+#  - |
+#    if $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+#      echo '22222'
+#    fi
+#  - |
+#    if $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#      echo '3333'
+#    fi
 #  only:
 #    variables:
 #      - $IMAGE
