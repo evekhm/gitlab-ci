@@ -13,12 +13,6 @@ stages:
 
 variables:
   TEST1: "${DEPLOY_PROJECT}"
-  TEST2: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications"
-
-before_script:
-- echo "DEPLOY_PROJECT = ${DEPLOY_PROJECT}"
-- echo "TEST1 = ${TEST1}"
-- echo "TEST2 = ${TEST2}"
 
 deploy:
   stage: deploy-image
@@ -27,6 +21,7 @@ deploy:
     IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
+    PROJECT: $DEPLOY_PROJECT
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
@@ -43,12 +38,10 @@ deploy:
       IMAGE: $QA_IMAGE
       ENVIRONMENT: development
       TRIGGER_BRANCH: main
-  script:
-  - echo "${TEST2}"
-#  trigger:
-#    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-#    project: "${TEST2}"  #TODO
-#    branch: "${TRIGGER_BRANCH}"
+  trigger:
+    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
+    project: "${PROJECT}"  #TODO
+    branch: "${TRIGGER_BRANCH}"
 
 
 #.deploy_image: &deploy_image

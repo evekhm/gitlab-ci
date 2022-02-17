@@ -33,8 +33,8 @@ after_script:
   script:
   - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
   - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-#  - docker push ${IMAGE} TODO
-#  - docker push ${IMAGE_LATEST} TODO
+  - docker push ${IMAGE}
+  - docker push ${IMAGE_LATEST}
 
 build image:
   stage: build-image
