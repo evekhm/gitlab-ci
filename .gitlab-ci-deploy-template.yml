@@ -54,6 +54,8 @@ create:
     TRIGGER_FILE: .gitlab-ci-trigger-template.yml
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
+  - pwd
+  - ls $(basename ${PROJECT_PATH})
   - sed 's|__MYVAR__|'"${PROJECT_PATH}"'|g; ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
 
   artifacts:
