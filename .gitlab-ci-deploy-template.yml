@@ -11,9 +11,14 @@ include:
 stages:
 - deploy-image
 
+variables:
+  TEST1: "${DEPLOY_PROJECT}"
+  TEST2: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications"
+
 before_script:
 - echo "DEPLOY_PROJECT = ${DEPLOY_PROJECT}"
-- echo 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
+- echo "TEST1 = ${TEST1}"
+- echo "TEST2 = ${TEST2}"
 
 deploy:
   stage: deploy-image
@@ -40,9 +45,10 @@ deploy:
       TRIGGER_BRANCH: main
   trigger:
     #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-    project: ${DEPLOY_PROJECT}  #TODO
-    branch: ${TRIGGER_BRANCH}
-#
+    project: "${TEST2}"  #TODO
+    branch: "${TRIGGER_BRANCH}"
+
+
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
 #    APPLICATION: $CI_PROJECT_NAME

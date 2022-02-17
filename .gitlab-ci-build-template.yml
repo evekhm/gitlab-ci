@@ -23,7 +23,7 @@ variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
 before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
 
 after_script:
   - docker logout ${CI_REGISTRY}
