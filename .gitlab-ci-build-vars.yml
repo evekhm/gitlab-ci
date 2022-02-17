@@ -12,4 +12,3 @@ variables:
   # Released Image Artefacts
   RELEASE_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:${CI_COMMIT_SHORT_SHA}"
   RELEASE_IMAGE_LATEST: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:latest"
-

@@ -9,94 +9,57 @@ include:
   .gitlab-ci-build-vars.yml
 
 stages:
+- create
+- execute
 - deploy-image
 
 variables:
   TEST1: "${DEPLOY_PROJECT}"
 
-deploy:
-  stage: deploy-image
-  variables:
-    APPLICATION: $CI_PROJECT_NAME
-    IMAGE_TAG: $IMAGE
-    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
-    PROJECT: $DEPLOY_PROJECT
-  rules:
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    variables:
-      IMAGE: $RELEASE_IMAGE
-      ENVIRONMENT: demo
-      TRIGGER_BRANCH: main
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-    variables:
-      IMAGE: $MR_IMAGE
-      ENVIRONMENT: test
-      TRIGGER_BRANCH: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-    variables:
-      IMAGE: $QA_IMAGE
-      ENVIRONMENT: development
-      TRIGGER_BRANCH: main
-  trigger:
-    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-    project: "${PROJECT}"  #TODO
-    branch: "${TRIGGER_BRANCH}"
-
-
-#.deploy_image: &deploy_image
-#  variables: # TO be passed downstream
+#deploy:
+#  stage: deploy-image
+#  variables:
 #    APPLICATION: $CI_PROJECT_NAME
+#    IMAGE_TAG: $IMAGE
 #    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-#    NAMESPACE: $NAMESPACE
-#  before_script:
-#  - source $VARIABLES_FILE
-#  script:
-#  - echo "Deploying image [$IMAGE] to project=[$DEPLOY_PROJECT], branch=[$TRIGGER_BRANCH], namespace=[$NAMESPACE]"
-#  only:
+#    MERGE_REQUEST_TARGET_BRANCH_NAME: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+#    UPSTREAM_PROJECT: $CI_PROJECT_PATH
+#    UPSTREAM_SHORT_SHA: $CI_COMMIT_SHORT_SHA
+#    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
+#    PROJECT: $DEPLOY_PROJECT
+#  rules:
+#  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 #    variables:
-#      - $DEPLOY_PROJECT
+#      IMAGE: $RELEASE_IMAGE
+#      ENVIRONMENT: demo
+#      TRIGGER_BRANCH: main
+#  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+#    variables:
+#      IMAGE: $MR_IMAGE
+#      ENVIRONMENT: test
+#      TRIGGER_BRANCH: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
+#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+#    variables:
+#      IMAGE: $QA_IMAGE
+#      ENVIRONMENT: development
+#      TRIGGER_BRANCH: main
 #  trigger:
-#    project: ${DEPLOY_PROJECT}
-#    branch: ${TRIGGER_BRANCH}
-#
-## Deploy to Demo when commit on the main branch
-#deploy to demo:
-#  environment: demo
-#  stage: deploy-image
-#  variables:
-#    TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
-#    NAMESPACE: "demo"
-#  <<: *deploy_image
-#  only:
-#    variables:
-#      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#
-#
-## Deploy to Test when merge request on the main branch
-#deploy to test:
-#  environment: test
-#  stage: deploy-image
-#  variables:
-#    TRIGGER_BRANCH: $CI_DEFAULT_BRANCH
-#    NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-#  <<: *deploy_image
-#  script:
-#  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
-#  only:
-#    variables:
-#      - $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-#
-## Deploy to development when commit to the feature branch
-#deploy to development:
-#  environment: development
-#  stage: deploy-image
-#  variables:
-#    TRIGGER_BRANCH: $CI_COMMIT_REF_NAME
-#    NAMESPACE: $CI_COMMIT_REF_SLUG
-#  <<: *deploy_image
-#  only:
-#  - branches
-#  except:
-#    variables:
-#      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
+#    #project: "${PROJECT}"  #TODO
+#    branch: "${TRIGGER_BRANCH}"
+
+create:
+  stage: create
+  script:
+  - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
+  artifacts:
+    paths:
+    - ${CI_PROJECT_DIR}/test.yml
+
+execute:
+  stage: deploy-image
+  trigger:
+    include:
+    - artifact: ${CI_PROJECT_DIR}/test.yml
+      job: create
+    strategy: depend
