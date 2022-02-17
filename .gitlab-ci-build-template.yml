@@ -29,17 +29,17 @@ after_script:
   - docker logout ${CI_REGISTRY}
 
 .build_image: &build_image
+  environment: $ENVIRONMENT
   script:
   - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
-#  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-#  - docker push ${IMAGE}
-#  - docker push ${IMAGE_LATEST}
+  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+  - docker push ${IMAGE}
+  - docker push ${IMAGE_LATEST}
 #  - echo "export IMAGE=$IMAGE " > $VARIABLES_FILE
 #  artifacts:
 #    paths:
 #    - ${VARIABLES_FILE}
 
-# Release image when commit to the main branch (e.g. when merge request approved, or directly to the main branch)
 
 build image:
   stage: build-image
@@ -61,23 +61,11 @@ build image:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
-  environment: $ENVIRONMENT
+
   script:
     - echo $IMAGE
-#  <<: *build_image
-#  - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
-    - |
-      if $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-        echo '11111'
-      fi
-    - |
-      if $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-        echo '22222'
-      fi
-    - |
-      if $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-        echo '3333'
-      fi
+    - echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  <<: *build_image
 #  only:
 #    variables:
 #      - $IMAGE

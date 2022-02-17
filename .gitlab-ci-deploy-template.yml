@@ -33,9 +33,9 @@ deploy:
     ENV: $ENVIRONMENT
 #    VARIABLES: ${VARIABLES_FILE}
   stage: deploy-image
-  only:
-    variables:
-      - $DEPLOY_PROJECT
+#  only:
+#    variables:
+#      - $DEPLOY_PROJECT
   trigger:
     project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO cannot reference $DEPLOY_PROJECT
     branch: main #TODO
