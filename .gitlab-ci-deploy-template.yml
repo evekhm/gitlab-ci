@@ -44,10 +44,10 @@ stages:
 #    #project: "${PROJECT}"  #TODO
 #    branch: "${TRIGGER_BRANCH}"
 
-create:
+create yml:
   stage: generate-yml
   script:
-    - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
+    - cp .gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/test.yml
