@@ -16,9 +16,10 @@ stages:
     APPLICATION: $CI_PROJECT_NAME
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     NAMESPACE: $NAMESPACE
-  script:
-  - echo "Deploying to project=[$DEPLOY_PROJECT], branch=[$TRIGGER_BRANCH], namespace=[$NAMESPACE]"
+  before_script:
   - source $VARIABLES_FILE
+  script:
+  - echo "Deploying image [$IMAGE] to project=[$DEPLOY_PROJECT], branch=[$TRIGGER_BRANCH], namespace=[$NAMESPACE]"
   only:
     variables:
       - $DEPLOY_PROJECT
