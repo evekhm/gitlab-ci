@@ -17,12 +17,15 @@ before_script:
 deploy:
   variables:
     APPLICATION: $CI_PROJECT_NAME
-    IMAGE_TAG: $CONTAINER_TEST_IMAGE
+    IMAGE_TAG: $IMAGE
     UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab
   stage: deploy-image
+  only:
+    variables:
+      - $DEPLOY_PROJECT
   trigger:
-    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
+    project: $DEPLOY_PROJECT
     branch: main
 #
 #.deploy_image: &deploy_image
