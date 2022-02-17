@@ -56,10 +56,10 @@ create:
     paths:
     - ${CI_PROJECT_DIR}/test.yml
 
-execute:
-  stage: deploy-image
-  trigger:
-    include:
-    - artifact: ${CI_PROJECT_DIR}/test.yml
-      job: create
-    strategy: depend
+#execute:
+#  stage: deploy-image
+#  trigger:
+#    include:
+#    - artifact: ${CI_PROJECT_DIR}/test.yml
+#      job: create
+#    strategy: depend
