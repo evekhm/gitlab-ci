@@ -11,6 +11,10 @@ include:
 stages:
 - deploy-image
 
+before_script:
+- echo "DEPLOY_PROJECT = ${DEPLOY_PROJECT}"
+- echo 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
+
 deploy:
   stage: deploy-image
   variables:
@@ -35,10 +39,9 @@ deploy:
       ENVIRONMENT: development
       TRIGGER_BRANCH: main
   trigger:
-    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO
-    #branch: main
+    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
+    project: ${DEPLOY_PROJECT}  #TODO
     branch: ${TRIGGER_BRANCH}
-    #project: ${DEPLOY_PROJECT}
 #
 #.deploy_image: &deploy_image
 #  variables: # TO be passed downstream
