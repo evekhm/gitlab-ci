@@ -51,7 +51,7 @@ variables:
 create:
   stage: create
   script:
-  - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
+    - cp ${CI_PROJECT_DIR}/.gitlab-ci-rules.yml ${CI_PROJECT_DIR}/test.yml
   artifacts:
     paths:
     - ${CI_PROJECT_DIR}/test.yml
