@@ -12,8 +12,6 @@ stages:
 - deploy-image
 
 deploy:
-  before_script:
-  - source $VARIABLES_FILE
   variables:
     APPLICATION: $CI_PROJECT_NAME
     IMAGE_TAG: $IMAGE
@@ -22,6 +20,8 @@ deploy:
   stage: deploy-image
   only:
     variables:
+  script:
+  - source $VARIABLES_FILE
   trigger:
     project: $DEPLOY_PROJECT
     branch: main
