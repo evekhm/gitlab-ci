@@ -12,6 +12,13 @@ stages:
 - deploy-image
 
 deploy:
+  stage: deploy-image
+  variables:
+    TRIGGER_BRANCH: main
+    APPLICATION: $CI_PROJECT_NAME
+    IMAGE_TAG: $IMAGE
+    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
+    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
@@ -25,19 +32,9 @@ deploy:
     variables:
       IMAGE: $QA_IMAGE
       ENVIRONMENT: development
-  variables:
-    APPLICATION: $CI_PROJECT_NAME
-    IMAGE_TAG: $IMAGE
-    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
-    ENV: $ENVIRONMENT
-#    VARIABLES: ${VARIABLES_FILE}
-  stage: deploy-image
-#  only:
-#    variables:
-#      - $DEPLOY_PROJECT
   trigger:
-    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO cannot reference $DEPLOY_PROJECT
+    #project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
+    project: ${DEPLOY_PROJECT} #TODO cannot reference $DEPLOY_PROJECT
     branch: main #TODO
 #
 #.deploy_image: &deploy_image
