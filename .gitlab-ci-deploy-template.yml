@@ -22,7 +22,7 @@ deploy:
     variables:
       - $DEPLOY_PROJECT
   trigger:
-    project: $DEPLOY_PROJECT
+    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
     branch: main
 #
 #.deploy_image: &deploy_image
