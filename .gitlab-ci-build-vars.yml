@@ -1,5 +1,5 @@
 variables:
-  VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.txt  # "." is required for image that have sh not bash
+  VARIABLES_FILE: tmp/variables.txt  # "." is required for image that have sh not bash
 
   # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
   QA_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_SHORT_SHA}"
