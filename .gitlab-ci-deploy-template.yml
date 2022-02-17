@@ -35,7 +35,8 @@ deploy:
       ENVIRONMENT: development
       TRIGGER_BRANCH: main
   trigger:
-    project: ${DEPLOY_PROJECT}
+    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications #TODO
+    #project: ${DEPLOY_PROJECT}
     branch: main
 #
 #.deploy_image: &deploy_image
