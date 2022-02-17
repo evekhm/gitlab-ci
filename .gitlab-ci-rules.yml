@@ -1,0 +1,16 @@
+rules:
+- if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    IMAGE: $RELEASE_IMAGE
+    ENVIRONMENT: demo
+    TRIGGER_BRANCH: main
+- if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+  variables:
+    IMAGE: $MR_IMAGE
+    ENVIRONMENT: test
+    TRIGGER_BRANCH: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
+- if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+  variables:
+    IMAGE: $QA_IMAGE
+    ENVIRONMENT: development
+    TRIGGER_BRANCH: main
