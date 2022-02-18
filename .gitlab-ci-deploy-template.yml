@@ -54,8 +54,6 @@ create:
   stage: generate-yml
   variables:
     TRIGGER_BRANCH: "main"
-    COMMIT_BRANCH: $CI_COMMIT_BRANCH
-  #  DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Main Branch
       variables:
@@ -65,11 +63,15 @@ create:
       variables:
         ENVIRONMENT: development
         NAMESPACE: $CI_COMMIT_BRANCH
+        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
       variables:
         ENVIRONMENT: test
         NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
+  - cat ${VARIABLES_FILE}
+  - source ${VARIABLES_FILE}
+  - echo $IMAGE
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
   - >
     sed  's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
@@ -77,7 +79,7 @@ create:
           s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
           s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
           s|__ENVIRONMENT__|'"${ENVIRONMENT}"'|g;
-          s|NAMESPACE|'"${NAMESPACE}"'|g;
+          s|__NAMESPACE__|'"${NAMESPACE}"'|g;
     '
     $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
   artifacts:
