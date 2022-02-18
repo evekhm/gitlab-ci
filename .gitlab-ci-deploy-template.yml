@@ -15,6 +15,7 @@ stages:
 - generate-yml
 - deploy-image
 
+image: alpine:latest
 #deploy:
 #  stage: deploy-image
 #  variables:
