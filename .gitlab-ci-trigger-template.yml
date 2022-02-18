@@ -7,7 +7,6 @@ deploy:
     #All these variables need to be substituted in the generated file, to be properly passed Downstream
     UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__
     #IMAGE_TAG: $IMAGE
-    UPSTREAM_BRANCH: __UPSTREAM_BRANCH__
     UPSTREAM_PROJECT_PATH: __UPSTREAM_PROJECT_PATH__
     UPSTREAM_SHORT_SHA: __UPSTREAM_SHORT_SHA__
     UPSTREAM_MR_SOURCE_BRANCH: __UPSTREAM_MR_SOURCE_BRANCH__
