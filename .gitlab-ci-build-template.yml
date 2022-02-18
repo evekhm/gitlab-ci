@@ -8,10 +8,9 @@
 include:
   .gitlab-ci-build-vars.yml
 
-image: docker:${DOCKER_IMAGE_VERSION}
 
-services:
-- docker:${DOCKER_IMAGE_VERSION}-dind
+
+
 
 stages:
 - build-image
@@ -29,6 +28,9 @@ after_script:
   - docker logout ${CI_REGISTRY}
 
 .build_image: &build_image
+  image: docker:${DOCKER_IMAGE_VERSION}
+  services:
+  - docker:${DOCKER_IMAGE_VERSION}-dind
   environment: $ENVIRONMENT
   script:
   - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"

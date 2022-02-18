@@ -15,7 +15,6 @@ stages:
 - generate-yml
 - deploy-image
 
-image: alpine:latest
 #deploy:
 #  stage: deploy-image
 #  variables:
@@ -52,6 +51,7 @@ variables:
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 create:
+  image: alpine:latest
   stage: generate-yml
   variables:
     TRIGGER_BRANCH: "main"
