@@ -31,15 +31,14 @@ stages:
 .build_image: &build_image
   environment: $ENVIRONMENT
   script:
-  - echo "!!!!!!!!!!!!!!!!!!Building image with tags [$IMAGE], [$IMAGE_LATEST]"
+  - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
 #  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
 #  - docker push ${IMAGE}
 #  - docker push ${IMAGE_LATEST}
   - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
-  - ls "${VARIABLES_FILE}"
+  - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
+  - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
   - cat "${VARIABLES_FILE}"
-  - echo "______________"
-  - echo "+++++++++++++++++++++++++++++++++++"
 
 build image:
   stage: build-image
@@ -48,17 +47,20 @@ build image:
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
+      NAMESPACE: $CI_COMMIT_BRANCH
       ENVIRONMENT: demo
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     variables:
       IMAGE: $MR_IMAGE
       IMAGE_LATEST: $MR_IMAGE_BRANCH
       ENVIRONMENT: test
+      NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
+      NAMESPACE: $CI_COMMIT_BRANCH
   <<: *build_image
   artifacts:
     paths:

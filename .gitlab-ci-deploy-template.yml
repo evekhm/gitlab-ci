@@ -54,20 +54,20 @@ create:
   stage: generate-yml
   variables:
     TRIGGER_BRANCH: "main"
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Main Branch
-      variables:
-        ENVIRONMENT: demo
-        NAMESPACE: demo
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" # Feature Branch
-      variables:
-        ENVIRONMENT: development
-        NAMESPACE: $CI_COMMIT_BRANCH
-        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
-      variables:
-        ENVIRONMENT: test
-        NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Main Branch
+#      variables:
+#        ENVIRONMENT: demo
+#        NAMESPACE: demo
+#    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" # Feature Branch
+#      variables:
+#        ENVIRONMENT: development
+#        NAMESPACE: $CI_COMMIT_BRANCH
+#        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
+#    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
+#      variables:
+#        ENVIRONMENT: test
+#        NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
