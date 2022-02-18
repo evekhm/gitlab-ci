@@ -55,9 +55,11 @@ build image:
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
   script:
-    - echo "export IMAGE=$IMAGE > ${VARIABLES_FILE}"
+    - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
+    - ls "${VARIABLES_FILE}"
+    - cat "${VARIABLES_FILE}"
   artifacts:
     paths:
-    - ${VARIABLES_FILE}
+    - "${VARIABLES_FILE}"
 
   <<: *build_image
