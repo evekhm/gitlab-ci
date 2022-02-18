@@ -67,16 +67,16 @@ create:
 #      IMAGE: $MR_IMAGE
 #      ENVIRONMENT: test
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-# Passing all the locally known variables Downstream using sed
-  - sed 's|__DOWNSTREAM_PROJECT_PATH__|'"${DOWNSTREAM_PROJECT_PATH}"'|g;
+  # Passing all the locally known variables Downstream using sed
+  - >
+    sed 's|__DOWNSTREAM_PROJECT_PATH__|'"${DOWNSTREAM_PROJECT_PATH}"'|g;
+         s|__DOWNSTREAM_BRANCH__|'"${DOWNSTREAM_BRANCH}"'|g;
          s|__DOWNSTREAM_BRANCH__|'"${DOWNSTREAM_BRANCH}"'|g;
          s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
          s|__UPSTREAM_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
          s|__UPSTREAM_MR_SOURCE_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
          s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
-         s|__UPSTREAM_SHORT_SHA__|'"${$CI_COMMIT_SHORT_SHA}"'|g;
-         '
-         $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+         s|__UPSTREAM_SHORT_SHA__|'"${$CI_COMMIT_SHORT_SHA}"'|g;' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
   - cat ${TRIGGER_FILE}
   artifacts:
     paths:
