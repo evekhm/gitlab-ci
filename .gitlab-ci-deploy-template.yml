@@ -55,6 +55,7 @@ create:
   variables:
     TRIGGER_BRANCH: "main"
     COMMIT_BRANCH: $CI_COMMIT_BRANCH
+    DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
   #    rules:
   #    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
   #        variables:
@@ -67,7 +68,7 @@ create:
   #      IMAGE: $MR_IMAGE
   #      ENVIRONMENT: test
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - sed 's|__PROJECT__|'"${DOWNSTREAM_PROJECT_PATH}"'|g; s|__BRANCH__|'"TRIGGER_BRANCH"'|g;' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+  - sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g; s|__BRANCH__|'"TRIGGER_BRANCH"'|g;' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
   - cat ${TRIGGER_FILE}
   artifacts:
     paths:
