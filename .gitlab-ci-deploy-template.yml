@@ -53,39 +53,30 @@ variables:
 create:
   stage: generate-yml
   variables:
-    DOWNSTREAM_BRANCH: "main"
-    UPSTREAM_BRANCH: $CI_COMMIT_BRANCH
-#  rules:
-#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-#      variables:
-#        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
-#  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-#      variables:
-#        COMMIT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    TRIGGER_BRANCH: "main"
+    COMMIT_BRANCH: $CI_COMMIT_BRANCH
+  #    rules:
+  #    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+  #        variables:
+  #          TRIGGER_BRANCH: $CI_COMMIT_BRANCH
+  #    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  #        variables:
+  #          COMMIT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
+  #    variables:
+  #      IMAGE: $MR_IMAGE
+  #      ENVIRONMENT: test
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - ls -a gitlab-ci
-  - ls $(basename ${PROJECT_PATH})/${TRIGGER_FILE}
-  - cat $(basename ${PROJECT_PATH})/${TRIGGER_FILE} > x.yml
-  - cat x.yml
-  - >
-    sed 's|__DOWNSTREAM_PROJECT_PATH__|'"${DOWNSTREAM_PROJECT_PATH}"'|g;
-         s|__DOWNSTREAM_BRANCH__|'"${DOWNSTREAM_BRANCH}"'|g;
-         s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
-         s|__UPSTREAM_COMMIT_BRANCH__|'"${CI_COMMIT_BRANCH}"'|g;
-         s|__UPSTREAM_MR_SOURCE_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
-         s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
-         s|__UPSTREAM_SHORT_SHA__|'"${CI_COMMIT_SHORT_SHA}"'|g;' x.yml > eva.yml
-
+  - sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g; s|__BRANCH__|'"TRIGGER_BRANCH"'|g;' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+  - cat ${TRIGGER_FILE}
   artifacts:
     paths:
-    - eva.yml
+    - ${TRIGGER_FILE}
 
 execute:
   stage: deploy-image
   trigger:
     include:
-    - artifact: eva.yml
+    - artifact: ${TRIGGER_FILE}
       job: create
     strategy: depend
-

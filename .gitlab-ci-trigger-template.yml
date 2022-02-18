@@ -4,14 +4,13 @@ stages:
 deploy:
   stage: deploy-image
   variables:
-    #All these variables need to be substituted in the generated file, to be properly passed Downstream
-    UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__
-    #IMAGE_TAG: $IMAGE
-    UPSTREAM_PROJECT_PATH: __UPSTREAM_PROJECT_PATH__
-    UPSTREAM_SHORT_SHA: __UPSTREAM_SHORT_SHA__
-    UPSTREAM_MR_SOURCE_BRANCH: __UPSTREAM_MR_SOURCE_BRANCH__
-    UPSTREAM_COMMIT_BRANCH: __UPSTREAM_COMMIT_BRANCH__
+    APPLICATION: $CI_PROJECT_NAME
+    IMAGE_TAG: $IMAGE
+    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
+    MERGE_REQUEST_TARGET_BRANCH_NAME: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    UPSTREAM_PROJECT: $CI_PROJECT_PATH
+    UPSTREAM_SHORT_SHA: $CI_COMMIT_SHORT_SHA
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
   trigger:
-    project: __DOWNSTREAM_PROJECT_PATH__
-    branch: __DOWNSTREAM_BRANCH__
+    project: __PROJECT__
+    branch: __BRANCH__
