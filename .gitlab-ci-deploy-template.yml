@@ -68,7 +68,10 @@ create:
   #      IMAGE: $MR_IMAGE
   #      ENVIRONMENT: test
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
-  - sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g; s|__BRANCH__|'"${TRIGGER_BRANCH}"'|g;' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+  - >
+    sed 's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
+         s|__BRANCH__|'"${TRIGGER_BRANCH}"'|g;
+        ' $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
   - cat ${TRIGGER_FILE}
   artifacts:
     paths:
