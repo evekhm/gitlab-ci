@@ -74,11 +74,11 @@ create:
     paths:
     - ${TRIGGER_FILE}
 
-execute:
-  stage: deploy-image
-  trigger:
-    include:
-    - artifact: ${TRIGGER_FILE}
-      job: create
-    strategy: depend
+#execute:
+#  stage: deploy-image
+#  trigger:
+#    include:
+#    - artifact: ${TRIGGER_FILE}
+#      job: create
+#    strategy: depend
 
