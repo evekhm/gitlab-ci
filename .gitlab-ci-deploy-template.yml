@@ -71,18 +71,18 @@ create:
          s|__UPSTREAM_MR_SOURCE_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
          s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
          s|__UPSTREAM_SHORT_SHA__|'"${CI_COMMIT_SHORT_SHA}"'|g;'
-    $(basename ${PROJECT_PATH})/.gitlab-ci-trigger-template.yml > ${TRIGGER_FILE}
+    $(basename ${PROJECT_PATH})/${TRIGGER_FILE} > eva.yml
 
-  - cat ${TRIGGER_FILE}
+  - cat eva.yml
   artifacts:
     paths:
-    - ${TRIGGER_FILE}
+    - eva.yml
 
 execute:
   stage: deploy-image
   trigger:
     include:
-    - artifact: ${TRIGGER_FILE}
+    - artifact: eva.yml
       job: create
     strategy: depend
 
