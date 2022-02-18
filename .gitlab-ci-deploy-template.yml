@@ -66,6 +66,7 @@ create:
   - ls $(basename ${PROJECT_PATH})
   - ls $(basename ${PROJECT_PATH})/${TRIGGER_FILE}
   - cat $(basename ${PROJECT_PATH})/${TRIGGER_FILE} > x.yml
+  - cat eva.yml
   - >
     sed 's|__DOWNSTREAM_PROJECT_PATH__|'"${DOWNSTREAM_PROJECT_PATH}"'|g;
          s|__DOWNSTREAM_BRANCH__|'"${DOWNSTREAM_BRANCH}"'|g;
@@ -73,10 +74,8 @@ create:
          s|__UPSTREAM_COMMIT_BRANCH__|'"${CI_COMMIT_BRANCH}"'|g;
          s|__UPSTREAM_MR_SOURCE_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
          s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
-         s|__UPSTREAM_SHORT_SHA__|'"${CI_COMMIT_SHORT_SHA}"'|g;'
-   x.yml > eva.yml
+         s|__UPSTREAM_SHORT_SHA__|'"${CI_COMMIT_SHORT_SHA}"'|g;' x.yml > eva.yml
 
-  - cat eva.yml
   artifacts:
     paths:
     - eva.yml
