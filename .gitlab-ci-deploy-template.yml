@@ -51,7 +51,6 @@ variables:
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 create:
-  image: alpine/git
   stage: generate-yml
   variables:
     TRIGGER_BRANCH: "main"
@@ -73,6 +72,8 @@ create:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
   - echo $IMAGE
+  - apk update
+  - apk add git
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
   - >
     sed  's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
