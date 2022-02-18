@@ -8,9 +8,10 @@
 include:
   .gitlab-ci-build-vars.yml
 
+image: docker:${DOCKER_IMAGE_VERSION}
 
-
-
+services:
+- docker:${DOCKER_IMAGE_VERSION}-dind
 
 stages:
 - build-image
@@ -21,16 +22,7 @@ variables:
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
 
-before_script:
-  - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
-
-after_script:
-  - docker logout ${CI_REGISTRY}
-
 .build_image: &build_image
-  image: docker:${DOCKER_IMAGE_VERSION}
-  services:
-  - docker:${DOCKER_IMAGE_VERSION}-dind
   environment: $ENVIRONMENT
   script:
   - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
@@ -42,6 +34,10 @@ after_script:
   - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
   - echo export TRIGGER_BRANCH=$TRIGGER_BRANCH >> "${VARIABLES_FILE}"
   - cat "${VARIABLES_FILE}"
+  before_script:
+  - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+  after_script:
+  - docker logout ${CI_REGISTRY}
 
 build image:
   stage: build-image
