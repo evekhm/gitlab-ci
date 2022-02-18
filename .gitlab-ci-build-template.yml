@@ -7,31 +7,31 @@
 # Included Variables
 include:
   .gitlab-ci-build-vars.yml
-
-image: docker:${DOCKER_IMAGE_VERSION}
-
-services:
-- docker:${DOCKER_IMAGE_VERSION}-dind
+#
+#image: docker:${DOCKER_IMAGE_VERSION}
+#
+#services:
+#- docker:${DOCKER_IMAGE_VERSION}-dind
 
 stages:
 - build-image
 
-variables:
-  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
-  DOCKER_IMAGE_VERSION: 19.03.1
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-
-before_script:
-  - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
-
-after_script:
-  - docker logout ${CI_REGISTRY}
+#variables:
+#  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+#  DOCKER_IMAGE_VERSION: 19.03.1
+#  DOCKER_HOST: tcp://docker:2376
+#  DOCKER_TLS_CERTDIR: "/certs"
+#
+#before_script:
+#  - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+#
+#after_script:
+#  - docker logout ${CI_REGISTRY}
 
 .build_image: &build_image
   environment: $ENVIRONMENT
   script:
-  - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
+  - echo "!!!!!!!!!!!!!!!!!!Building image with tags [$IMAGE], [$IMAGE_LATEST]"
 #  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
 #  - docker push ${IMAGE}
 #  - docker push ${IMAGE_LATEST}
@@ -39,6 +39,7 @@ after_script:
   - ls "${VARIABLES_FILE}"
   - cat "${VARIABLES_FILE}"
   - echo "______________"
+  - echo "+++++++++++++++++++++++++++++++++++"
 
 build image:
   stage: build-image
