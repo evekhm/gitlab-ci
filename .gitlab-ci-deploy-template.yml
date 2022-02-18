@@ -53,9 +53,8 @@ variables:
 create:
   stage: generate-yml
   variables:
-    TRIGGER_BRANCH: "main"
+    DOWNSTREAM_BRANCH: "main"
     COMMIT_BRANCH: $CI_COMMIT_BRANCH
-    DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
 #  rules:
 #  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
 #      variables:
