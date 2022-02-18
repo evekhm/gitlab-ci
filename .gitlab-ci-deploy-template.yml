@@ -58,17 +58,17 @@ create:
   #  DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Main Branch
-        variables:
-          ENVIRONMENT: demo
-          NAMESPACE: demo
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" # Feature Branch
-        variables:
-          ENVIRONMENT: development
-          NAMESPACE: $CI_COMMIT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
-        variables:
-          ENVIRONMENT: test
-          NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+      variables:
+        ENVIRONMENT: demo
+        NAMESPACE: demo
+#    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" # Feature Branch
+#        variables:
+#          ENVIRONMENT: development
+#          NAMESPACE: $CI_COMMIT_BRANCH
+#    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
+#        variables:
+#          ENVIRONMENT: test
+#          NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
   #- chmod a+x $(basename ${PROJECT_PATH})/${TRIGGER_FILE}
