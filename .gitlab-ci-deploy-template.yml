@@ -2,11 +2,6 @@
 # IMPORTANT: Do not rename this file or move to another folder. Doing so would
 #            break the CI pipelines of projects that "include:" this file.
 #
-
-# This file is used to generate trigger yml
-# This is needed in for project inside trigger to be a static string, since dynamic variable subsitution is not working.
-# Also IMAGE TAG is passed as a variable
-# Requires $DEPLOY_PROJECT to be set
 # Included Variables
 include:
   .gitlab-ci-build-vars.yml
@@ -15,59 +10,12 @@ stages:
 - generate-yml
 - deploy-image
 
-#deploy:
-#  stage: deploy-image
-#  variables:
-#    APPLICATION: $CI_PROJECT_NAME
-#    IMAGE_TAG: $IMAGE
-#    UPSTREAM_BRANCH: $CI_COMMIT_REF_NAME
-#    MERGE_REQUEST_TARGET_BRANCH_NAME: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-#    UPSTREAM_PROJECT: $CI_PROJECT_PATH
-#    UPSTREAM_SHORT_SHA: $CI_COMMIT_SHORT_SHA
-#    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
-#    PROJECT: $DEPLOY_PROJECT
-#  rules:
-#  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#    variables:
-#      IMAGE: $RELEASE_IMAGE
-#      ENVIRONMENT: demo
-#      TRIGGER_BRANCH: main
-#  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
-#    variables:
-#      IMAGE: $MR_IMAGE
-#      ENVIRONMENT: test
-#      TRIGGER_BRANCH: ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
-#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-#    variables:
-#      IMAGE: $QA_IMAGE
-#      ENVIRONMENT: development
-#      TRIGGER_BRANCH: main
-#  trigger:
-#    project: gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications
-#    #project: "${PROJECT}"  #TODO
-#    branch: "${TRIGGER_BRANCH}"
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 create:
   stage: generate-yml
-  variables:
-    TRIGGER_BRANCH: "main"
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Main Branch
-#      variables:
-#        ENVIRONMENT: demo
-#        NAMESPACE: demo
-#    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" # Feature Branch
-#      variables:
-#        ENVIRONMENT: development
-#        NAMESPACE: $CI_COMMIT_BRANCH
-#        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
-#    - if: $CI_PIPELINE_SOURCE == "merge_request_event" #Merge Request
-#      variables:
-#        ENVIRONMENT: test
-#        NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}

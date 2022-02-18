@@ -3,6 +3,7 @@ stages:
 
 deploy:
   stage: deploy-image
+  ebvironment: __ENVIRONMENT__
   variables:
     IMAGE: __IMAGE__
     UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__
