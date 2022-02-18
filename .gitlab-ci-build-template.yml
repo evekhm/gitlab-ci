@@ -35,6 +35,10 @@ after_script:
 #  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
 #  - docker push ${IMAGE}
 #  - docker push ${IMAGE_LATEST}
+  - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
+  - ls "${VARIABLES_FILE}"
+  - cat "${VARIABLES_FILE}"
+  - echo "______________"
 
 build image:
   stage: build-image
@@ -54,11 +58,6 @@ build image:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
-  script:
-    - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
-    - ls "${VARIABLES_FILE}"
-    - cat "${VARIABLES_FILE}"
-    - echo "______________"
   <<: *build_image
   artifacts:
     paths:
