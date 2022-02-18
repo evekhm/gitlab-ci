@@ -56,13 +56,13 @@ create:
     TRIGGER_BRANCH: "main"
     COMMIT_BRANCH: $CI_COMMIT_BRANCH
     DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications'
-  rules:
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
-      variables:
-        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      variables:
-        COMMIT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+#  rules:
+#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+#      variables:
+#        TRIGGER_BRANCH: $CI_COMMIT_BRANCH
+#  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#      variables:
+#        COMMIT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
   #    variables:
   #      IMAGE: $MR_IMAGE
