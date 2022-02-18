@@ -63,6 +63,9 @@ create:
 #        COMMIT_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
+  - ls $(basename ${PROJECT_PATH})
+  - ls $(basename ${PROJECT_PATH})/${TRIGGER_FILE}
+  - cat $(basename ${PROJECT_PATH})/${TRIGGER_FILE} > x.yml
   - >
     sed 's|__DOWNSTREAM_PROJECT_PATH__|'"${DOWNSTREAM_PROJECT_PATH}"'|g;
          s|__DOWNSTREAM_BRANCH__|'"${DOWNSTREAM_BRANCH}"'|g;
@@ -71,7 +74,7 @@ create:
          s|__UPSTREAM_MR_SOURCE_BRANCH__|'"${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"'|g;
          s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
          s|__UPSTREAM_SHORT_SHA__|'"${CI_COMMIT_SHORT_SHA}"'|g;'
-    $(basename ${PROJECT_PATH})/${TRIGGER_FILE} > eva.yml
+   x.yml > eva.yml
 
   - cat eva.yml
   artifacts:
