@@ -51,7 +51,7 @@ variables:
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 create:
-  image: alpine:latest
+  image: alpine/git
   stage: generate-yml
   variables:
     TRIGGER_BRANCH: "main"
@@ -70,7 +70,6 @@ create:
 #        ENVIRONMENT: test
 #        NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
-  - apt-get update && apt-get install git
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
   - echo $IMAGE
