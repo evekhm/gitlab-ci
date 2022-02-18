@@ -32,10 +32,10 @@ after_script:
   environment: $ENVIRONMENT
   script:
   - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
-#  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-#  - docker push ${IMAGE}
-#  - docker push ${IMAGE_LATEST}
-  - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
+  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+  - docker push ${IMAGE}
+  - docker push ${IMAGE_LATEST}
+  - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
   - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
   - echo export TRIGGER_BRANCH=$TRIGGER_BRANCH >> "${VARIABLES_FILE}"

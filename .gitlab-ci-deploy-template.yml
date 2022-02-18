@@ -69,6 +69,7 @@ create:
 #        ENVIRONMENT: test
 #        NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
+  - apt-get update && apt-get install git
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
   - echo $IMAGE
@@ -76,6 +77,7 @@ create:
   - >
     sed  's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
           s|__BRANCH__|'"${TRIGGER_BRANCH}"'|g;
+          s|__IMAGE__|'"${IMAGE}"'|g;
           s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
           s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
           s|__ENVIRONMENT__|'"${ENVIRONMENT}"'|g;

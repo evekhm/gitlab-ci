@@ -4,7 +4,7 @@ stages:
 deploy:
   stage: deploy-image
   variables:
-    IMAGE_TAG: TODO
+    IMAGE: __IMAGE__
     UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__
     UPSTREAM_PROJECT_PATH: __UPSTREAM_PROJECT_PATH__
     ENVIRONMENT: __ENVIRONMENT__
