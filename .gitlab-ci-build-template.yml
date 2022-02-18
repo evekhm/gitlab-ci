@@ -58,8 +58,9 @@ build image:
     - echo export IMAGE=$IMAGE > "${VARIABLES_FILE}"
     - ls "${VARIABLES_FILE}"
     - cat "${VARIABLES_FILE}"
+    - echo "______________"
+  <<: *build_image
   artifacts:
     paths:
     - "${VARIABLES_FILE}"
 
-  <<: *build_image
