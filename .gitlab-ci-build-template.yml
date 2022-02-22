@@ -25,12 +25,12 @@ variables:
 .build_image: &build_image
   environment: $ENVIRONMENT
   script:
-  - echo "Building image with tags [$IMAGE], [$IMAGE_LATEST]"
+  - echo "Building Image with tags [$IMAGE], [$IMAGE_LATEST]"
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH = $CI_MERGE_REQUEST_SOURCE_BRANCH
-  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-  - docker push ${IMAGE}
-  - docker push ${IMAGE_LATEST}
+#  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+#  - docker push ${IMAGE}
+#  - docker push ${IMAGE_LATEST}
   - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
   - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
