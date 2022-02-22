@@ -12,5 +12,4 @@ deploy:
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab! TODO
   trigger:
     project: __PROJECT__
-    branch: __BRANCH__
-    fallback_branch: master
+    #branch: __BRANCH__ TODO with fallback to main
