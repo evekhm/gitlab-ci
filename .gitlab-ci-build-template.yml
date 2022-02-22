@@ -31,7 +31,7 @@ variables:
   - docker push ${IMAGE_LATEST}
   - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
-  - echo export KUBE_NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
+  - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
   - echo export TRIGGER_BRANCH=$TRIGGER_BRANCH >> "${VARIABLES_FILE}"
   - cat "${VARIABLES_FILE}"
   before_script:
@@ -48,20 +48,20 @@ build image:
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-      KUBE_NAMESPACE: $CI_COMMIT_BRANCH
+      NAMESPACE: $CI_COMMIT_BRANCH
       ENVIRONMENT: demo
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     variables:
       IMAGE: $MR_IMAGE
       IMAGE_LATEST: $MR_IMAGE_BRANCH
       ENVIRONMENT: test
-      KUBE_NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+      NAMESPACE: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: development
-      KUBE_NAMESPACE: $CI_COMMIT_BRANCH
+      NAMESPACE: $CI_COMMIT_BRANCH
       TRIGGER_BRANCH: $CI_COMMIT_BRANCH
   <<: *build_image
   artifacts:

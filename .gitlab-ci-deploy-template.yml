@@ -30,7 +30,7 @@ create:
           s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
           s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
           s|__ENVIRONMENT__|'"${ENVIRONMENT}"'|g;
-          s|__KUBE_NAMESPACE__|'"${KUBE_NAMESPACE}"'|g;
+          s|__NAMESPACE__|'"${NAMESPACE}"'|g;
     '
     $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
   artifacts:
