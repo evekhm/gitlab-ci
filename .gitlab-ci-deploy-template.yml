@@ -9,6 +9,7 @@ include:
 stages:
 - generate-yml
 - deploy-image
+- deploy-to-test
 
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
@@ -35,6 +36,7 @@ create:
     $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
   rules:
   - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
+    when: always
   artifacts:
     paths:
     - ${TRIGGER_FILE}
@@ -46,3 +48,12 @@ execute:
     - artifact: ${TRIGGER_FILE}
       job: create
     strategy: depend
+
+deploy to test:
+  stage: deploy-to-test
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: deploy-to-test
+    strategy: depend
+  when: manual

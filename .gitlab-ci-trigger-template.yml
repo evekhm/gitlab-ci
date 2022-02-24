@@ -15,4 +15,4 @@ deploy:
     #branch: __BRANCH__ TODO with fallback to main
   rules:
   - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
-  - when: always
+    when: always
