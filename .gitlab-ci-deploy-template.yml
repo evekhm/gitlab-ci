@@ -49,11 +49,11 @@ execute:
       job: create
     strategy: depend
 
-deploy to test:
-  stage: deploy-to-test
-  trigger:
-    include:
-    - artifact: ${TRIGGER_FILE}
-      job: deploy-to-test
-    strategy: depend
-  when: manual
+#deploy to test:
+#  stage: deploy-to-test
+#  trigger:
+#    include:
+#    - artifact: ${TRIGGER_FILE}
+#      job: deploy-to-test
+#    strategy: depend
+#  when: manual
