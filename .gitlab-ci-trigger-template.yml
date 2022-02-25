@@ -12,7 +12,4 @@ deploy:
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
   trigger:
     project: __PROJECT__
-    #branch: __BRANCH__ TODO with fallback to main
-  rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
-    when: always
+    branch: __BRANCH__ # if same branch as Commit branch exists in deploy project, uses it. Otherwise falls back to the main

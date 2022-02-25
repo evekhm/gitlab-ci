@@ -20,9 +20,21 @@ create:
   script:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
-  - echo $IMAGE
+  - echo Image = $IMAGE
+  - echo Branch = ${CI_COMMIT_BRANCH}
   - apk update
   - apk add git
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git ${CI_PROJECT_DIR}/(basename ${DEPLOY_PROJECT})
+  - >
+    cd ${CI_PROJECT_DIR}/(basename ${DEPLOY_PROJECT})
+    TRIGGER_BRANCH=`git remote show REMOTE_REPO_NAME | grep 'HEAD branch' | cut -d' ' -f5`
+    if [[ -z ${CI_COMMIT_BRANCH} ]]; then
+      branch_exists_in_deploy=$(git ls-remote --heads origin ${CI_COMMIT_BRANCH})
+      if [[ -z ${branch_exists_in_deploy} ]]; then
+          TRIGGER_BRANCH=${CI_COMMIT_BRANCH}
+      fi
+    fi
+    cd ${CI_PROJECT_DIR}
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git $(basename ${PROJECT_PATH})
   - >
     sed  's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
@@ -34,9 +46,6 @@ create:
           s|__NAMESPACE__|'"${NAMESPACE}"'|g;
     '
     $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
-  rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
-    when: always
   artifacts:
     paths:
     - ${TRIGGER_FILE}
@@ -48,15 +57,12 @@ execute:
     - artifact: ${TRIGGER_FILE}
       job: create
     strategy: depend
-  rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
-    when: always
 
-#deploy to test:
-#  stage: deploy-to-test
-#  trigger:
-#    include:
-#    - artifact: ${TRIGGER_FILE}
-#      job: deploy-to-test
-#    strategy: depend
-#  when: manual
+deploy to test:
+  stage: deploy-to-test
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: deploy-to-test
+    strategy: depend
+  when: manual
