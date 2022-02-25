@@ -102,7 +102,7 @@ deploy MR to test:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: get-latest-image
+      job: get-mr-image
     strategy: depend
   rules:
   - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
