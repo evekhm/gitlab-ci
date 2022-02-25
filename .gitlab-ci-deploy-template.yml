@@ -53,22 +53,6 @@ variables:
     paths:
     - ${TRIGGER_FILE}
 
-deploy-mr:
-  stage: deploy-image
-  rules:
-  - !reference [.build_rules, rules]
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    when: always
-  variables:
-    IMAGE: $IMAGE_LATEST
-    UPSTREAM_PROJECT_NAME: ${CI_PROJECT_NAME}
-    UPSTREAM_PROJECT_PATH: ${CI_PROJECT_PATH}
-    ENVIRONMENT: $ENVIRONMENT
-    NAMESPACE: $NAMESPACE
-    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
-  trigger:
-    project: $DEPLOY_PROJECT
-
 
 use-build-results:
   stage: vars
@@ -84,6 +68,14 @@ get-latest-image:
   script:
   - IMAGE = $IMAGE_LATEST
   - echo Branch = ${CI_COMMIT_BRANCH}
+  <<: *create_yaml
+
+get-mr-image:
+  stage: vars
+  rules:
+  - !reference [.build_rules, rules]
+  script:
+  - echo $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
 
 execute:
@@ -107,16 +99,11 @@ deploy to test:
 # Takes latest image of the branch and deploys it to test environment
 deploy MR to test:
   stage: deploy-image
-  script:
-  - echo $MR_IMAGE
-  - echo $MR_IMAGE_BRANCH
-#  variables:
-#    IMAGE=
-#  trigger:
-#    include:
-#    - artifact: ${TRIGGER_FILE}
-#      job: get-latest-image
-#    strategy: depend
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: get-latest-image
+    strategy: depend
   rules:
   - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     when: manual
