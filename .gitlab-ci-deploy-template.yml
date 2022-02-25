@@ -26,7 +26,7 @@ create:
   - apk add git
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
   - cd $(basename ${DEPLOY_PROJECT})
-  - TRIGGER_BRANCH=`git remote show REMOTE_REPO_NAME | grep 'HEAD branch' | cut -d' ' -f5`
+  - TRIGGER_BRANCH=`git remote show https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git | grep 'HEAD branch' | cut -d' ' -f5`
   - >
     if [[ -z ${CI_COMMIT_BRANCH} ]]; then
       branch_exists_in_deploy=$(git ls-remote --heads origin ${CI_COMMIT_BRANCH})
