@@ -3,6 +3,8 @@ stages:
 
 deploy:
   stage: deploy-image
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   variables:
     IMAGE: __IMAGE__
     UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__
@@ -12,7 +14,4 @@ deploy:
     PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
   trigger:
     project: __PROJECT__
-    branch: __BRANCH__ # if same branch as Commit branch exists in deploy project, uses it. Otherwise falls back to the main
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      when: always
+    branch: __BRANCH__

@@ -4,11 +4,6 @@
 #
 # Included Variables
 
-# Using stage vars to generate yaml, because following does not work 'dynamically' but needs a fixed static path to the downstream project.
-#trigger:
-##  project: $DEPLOY_PROJECT
-
-
 include:
   .gitlab-ci-build-vars.yml
 
@@ -20,7 +15,6 @@ variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
-# Sets TRIGGER_BRANCH:  if branch with same name exists in the deploy project - uses it. Otherwise, Falls back to default branch
 .create yaml: &create_yaml
   script:
   - echo IMAGE = ${IMAGE}
@@ -65,14 +59,13 @@ get-latest-image:
   stage: vars
   rules:
   - !reference [.build_rules, rules]
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    when: never
   script:
   - IMAGE = $IMAGE_LATEST
   - echo Branch = ${CI_COMMIT_BRANCH}
   <<: *create_yaml
 
 
+# GitLab Limitation, cannot execute same way the flow on the MR
 get-mr-image:
   stage: vars
   rules:
@@ -80,6 +73,18 @@ get-mr-image:
   script:
   - echo $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
+  only:
+  - merge_requests
+
+deploy MR to test:
+  stage: deploy-image
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: get-mr-image
+    strategy: depend
+  only:
+  - merge_requests
 
 execute:
   stage: deploy-image
@@ -89,30 +94,8 @@ execute:
       job: use-build-results
     strategy: depend
 
-# Takes latest image of the branch and deploys it to test environment
-deploy to test:
-  stage: deploy-image
-  trigger:
-    include:
-    - artifact: ${TRIGGER_FILE}
-      job: get-latest-image
-    strategy: depend
-  when: manual
-
-# Takes latest image of the branch and deploys it to test environment
-deploy MR to test:
-  stage: deploy-image
-  trigger:
-    include:
-    - artifact: ${TRIGGER_FILE}
-      job: get-mr-image
-    strategy: depend
-  rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    when: always
-
-# Takes latest image of the branch and deploys it to test environment
-deploy to development:
+# Takes latest image which was just built and deploys to test environment. MR not supported
+deploy:
   stage: deploy-image
   trigger:
     include:
