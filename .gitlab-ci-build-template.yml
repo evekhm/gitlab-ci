@@ -32,9 +32,9 @@ variables:
   - echo CI_MERGE_REQUEST_DIFF_BASE_SHA = $CI_MERGE_REQUEST_DIFF_BASE_SHA
   - echo CI_DEFAULT_BRANCH = $CI_DEFAULT_BRANCH
   - echo CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID
-  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
-  - docker push ${IMAGE}
-  - docker push ${IMAGE_LATEST}
+#  - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+#  - docker push ${IMAGE}
+#  - docker push ${IMAGE_LATEST}
   - echo IMAGE_LATEST=${IMAGE_LATEST}, IMAGE=${IMAGE}
   - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
