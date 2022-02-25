@@ -3,11 +3,17 @@
 #            break the CI pipelines of projects that "include:" this file.
 #
 # Included Variables
+
+# Using stage vars to generate yaml, because following does not work 'dynamically' but needs a fixed static path to the downstream project.
+#trigger:
+##  project: $DEPLOY_PROJECT
+
+
 include:
   .gitlab-ci-build-vars.yml
 
 stages:
-- generate-yml
+- vars
 - deploy-image
 
 variables:
@@ -65,14 +71,14 @@ deploy-mr:
 
 
 use-build-results:
-  stage: generate-yml
+  stage: vars
   script:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
   <<: *create_yaml
 
 get-latest-image:
-  stage: generate-yml
+  stage: vars
   rules:
   - !reference [.build_rules, rules]
   script:
@@ -96,6 +102,21 @@ deploy to test:
     - artifact: ${TRIGGER_FILE}
       job: get-latest-image
     strategy: depend
+  when: manual
+
+# Takes latest image of the branch and deploys it to test environment
+deploy MR to test:
+  stage: deploy-image
+  script:
+  - echo $MR_IMAGE
+  - echo $MR_IMAGE_BRANCH
+#  variables:
+#    IMAGE=
+#  trigger:
+#    include:
+#    - artifact: ${TRIGGER_FILE}
+#      job: get-latest-image
+#    strategy: depend
   when: manual
 
 # Takes latest image of the branch and deploys it to test environment
