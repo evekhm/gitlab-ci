@@ -75,8 +75,9 @@ get-latest-image:
 
 get-mr-image:
   stage: vars
-  rules:
-  - !reference [.build_rules, rules]
+  variables:
+    IMAGE=$MR_IMAGE_BRANCH
+    ENVIRONMENT=test
   script:
   - echo $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
