@@ -117,7 +117,9 @@ deploy MR to test:
 #    - artifact: ${TRIGGER_FILE}
 #      job: get-latest-image
 #    strategy: depend
-  when: manual
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    when: manual
 
 # Takes latest image of the branch and deploys it to test environment
 deploy to development:
