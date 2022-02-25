@@ -65,10 +65,13 @@ get-latest-image:
   stage: vars
   rules:
   - !reference [.build_rules, rules]
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: never
   script:
   - IMAGE = $IMAGE_LATEST
   - echo Branch = ${CI_COMMIT_BRANCH}
   <<: *create_yaml
+
 
 get-mr-image:
   stage: vars
