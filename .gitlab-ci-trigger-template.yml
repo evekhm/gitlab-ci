@@ -4,7 +4,7 @@ stages:
 deploy:
   stage: deploy-image
   rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  - if: $CI_MERGE_REQUEST_ID
   variables:
     IMAGE: __IMAGE__
     UPSTREAM_PROJECT_NAME: __UPSTREAM_PROJECT_NAME__

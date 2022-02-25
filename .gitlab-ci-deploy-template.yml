@@ -9,11 +9,22 @@ include:
 
 stages:
 - vars
-- deploy-image
+- deploy
 
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
+
+
+deploy mr:
+  stage: deploy
+  rules:
+  - if: $CI_MERGE_REQUEST_ID
+  trigger:
+    include:
+    - project: $DEPLOY_PROJECT
+      file: '.gitlab-ci.yml'
+
 
 .create yaml: &create_yaml
   script:
@@ -79,7 +90,7 @@ get-mr-image:
   - if: $CI_MERGE_REQUEST_ID
 
 deploy MR to test:
-  stage: deploy-image
+  stage: deploy
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
@@ -89,7 +100,7 @@ deploy MR to test:
   - if: $CI_MERGE_REQUEST_ID
 
 execute:
-  stage: deploy-image
+  stage: deploy
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
@@ -98,7 +109,7 @@ execute:
 
 # Takes latest image which was just built and deploys to test environment. MR not supported
 deploy:
-  stage: deploy-image
+  stage: deploy
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}

@@ -14,7 +14,7 @@ services:
 - docker:${DOCKER_IMAGE_VERSION}-dind
 
 stages:
-- build-image
+- build
 
 variables:
   # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
@@ -22,7 +22,7 @@ variables:
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
 
-.build_image: &build_image
+.build_image: &build
   environment: $ENVIRONMENT
   script:
   - echo "Building Image with tags [$IMAGE], [$IMAGE_LATEST]"
@@ -46,10 +46,10 @@ variables:
   - docker logout ${CI_REGISTRY}
 
 build image:
-  stage: build-image
+  stage: build
   rules:
   - !reference [.build_rules, rules]
-  <<: *build_image
+  <<: *build
   artifacts:
     paths:
     - "${VARIABLES_FILE}"
