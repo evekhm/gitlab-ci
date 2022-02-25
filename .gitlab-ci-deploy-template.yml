@@ -76,7 +76,7 @@ get-mr-image:
   - echo $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
   rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  - if: $CI_MERGE_REQUEST_ID
 
 deploy MR to test:
   stage: deploy-image
@@ -86,7 +86,7 @@ deploy MR to test:
       job: get-mr-image
     strategy: depend
   rules:
-  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  - if: $CI_MERGE_REQUEST_ID
 
 execute:
   stage: deploy-image
