@@ -63,6 +63,6 @@ deploy to test:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: deploy-to-test
+      job: create
     strategy: depend
   when: manual
