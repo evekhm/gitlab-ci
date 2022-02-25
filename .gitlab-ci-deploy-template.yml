@@ -15,13 +15,9 @@ variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
-create:
-  stage: generate-yml
+# Sets TRIGGER_BRANCH:  if branch with same name exists in the deploy project - uses it. Otherwise, Falls back to default branch
+.create yaml: &create_yaml
   script:
-  - cat ${VARIABLES_FILE}
-  - source ${VARIABLES_FILE}
-  - echo Image = $IMAGE
-  - echo Branch = ${CI_COMMIT_BRANCH}
   - apk update
   - apk add git
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
@@ -50,15 +46,42 @@ create:
     paths:
     - ${TRIGGER_FILE}
 
+use-build-results:
+  stage: generate-yml
+  script:
+  - cat ${VARIABLES_FILE}
+  - source ${VARIABLES_FILE}
+  - echo Image = $IMAGE
+  - echo Branch = ${CI_COMMIT_BRANCH}
+  <<: *create_yaml
+
+get-latest-image:
+  stage: generate-yml
+  script:
+  - echo Image = $IMAGE
+  - echo Branch = ${CI_COMMIT_BRANCH}
+  <<: *create_yaml
+
 execute:
   stage: deploy-image
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: create
+      job: use-build-results
     strategy: depend
 
+# Takes latest image of the branch and deploys it to test environment
 deploy to test:
+  stage: deploy-to-test
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: create
+    strategy: depend
+  when: manual
+
+# Takes latest image of the branch and deploys it to test environment
+deploy to development:
   stage: deploy-to-test
   trigger:
     include:
