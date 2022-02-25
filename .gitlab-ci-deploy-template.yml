@@ -9,7 +9,6 @@ include:
 stages:
 - generate-yml
 - deploy-image
-- deploy-to-test
 
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
@@ -18,6 +17,8 @@ variables:
 # Sets TRIGGER_BRANCH:  if branch with same name exists in the deploy project - uses it. Otherwise, Falls back to default branch
 .create yaml: &create_yaml
   script:
+  - echo IMAGE = ${IMAGE}
+  - echo BRANCH = ${CI_COMMIT_BRANCH}
   - apk update
   - apk add git
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
@@ -46,19 +47,36 @@ variables:
     paths:
     - ${TRIGGER_FILE}
 
+deploy-mr:
+  stage: deploy-image
+  rules:
+  - !reference [.build_rules, rules]
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    when: always
+  variables:
+    IMAGE: $IMAGE_LATEST
+    UPSTREAM_PROJECT_NAME: ${CI_PROJECT_NAME}
+    UPSTREAM_PROJECT_PATH: ${CI_PROJECT_PATH}
+    ENVIRONMENT: $ENVIRONMENT
+    NAMESPACE: $NAMESPACE
+    PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
+  trigger:
+    project: $DEPLOY_PROJECT
+
+
 use-build-results:
   stage: generate-yml
   script:
   - cat ${VARIABLES_FILE}
   - source ${VARIABLES_FILE}
-  - echo Image = $IMAGE
-  - echo Branch = ${CI_COMMIT_BRANCH}
   <<: *create_yaml
 
 get-latest-image:
   stage: generate-yml
+  rules:
+  - !reference [.build_rules, rules]
   script:
-  - echo Image = $IMAGE
+  - IMAGE = $IMAGE_LATEST
   - echo Branch = ${CI_COMMIT_BRANCH}
   <<: *create_yaml
 
@@ -72,7 +90,7 @@ execute:
 
 # Takes latest image of the branch and deploys it to test environment
 deploy to test:
-  stage: deploy-to-test
+  stage: deploy-image
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
@@ -82,7 +100,7 @@ deploy to test:
 
 # Takes latest image of the branch and deploys it to test environment
 deploy to development:
-  stage: deploy-to-test
+  stage: deploy-image
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
