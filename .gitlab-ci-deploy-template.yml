@@ -75,8 +75,8 @@ get-mr-image:
   script:
   - echo $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
-  only:
-  - merge_requests
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 deploy MR to test:
   stage: deploy-image
@@ -85,8 +85,8 @@ deploy MR to test:
     - artifact: ${TRIGGER_FILE}
       job: get-mr-image
     strategy: depend
-  only:
-  - merge_requests
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 execute:
   stage: deploy-image
