@@ -48,6 +48,9 @@ execute:
     - artifact: ${TRIGGER_FILE}
       job: create
     strategy: depend
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event' || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH
+    when: always
 
 #deploy to test:
 #  stage: deploy-to-test
