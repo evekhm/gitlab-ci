@@ -76,7 +76,7 @@ deploy to test:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: create
+      job: use-build-results
     strategy: depend
   when: manual
 
