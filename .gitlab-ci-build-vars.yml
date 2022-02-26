@@ -27,7 +27,6 @@ variables:
       NAMESPACE: $DEMO_ENV_NAME # not to use the main branch name
       ENVIRONMENT: $DEMO_ENV_NAME
   - if: $CI_MERGE_REQUEST_ID
-  - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
     variables:
       IMAGE: $MR_IMAGE
       IMAGE_LATEST: $MR_IMAGE_BRANCH
