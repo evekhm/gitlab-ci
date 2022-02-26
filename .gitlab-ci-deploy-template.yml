@@ -70,19 +70,19 @@ use-build-results:
   stage: vars
   <<: *create_yaml
 
-#get-latest-image:
-#  stage: vars
-#  rules:
-#  - !reference [.build_rules, rules]
-#  script:
-#  - IMAGE = $IMAGE_LATEST
-#  - echo "get-latest-image" BRANCH = ${CI_COMMIT_BRANCH}
-#  <<: *create_yaml
+execute:
+  stage: deploy
+  trigger:
+    include:
+    - artifact: ${TRIGGER_FILE}
+      job: use-build-results
+    strategy: depend
 
-# Workaround GitLab Limitation, cannot execute same way the flow on the MR
+# ------- Workaround GitLab Limitation, that it cannot execute same way the flow on the MR
 get-mr-image:
-  stage: vars
-  <<: *create_yaml
+  extends: use-build-results
+#  stage: vars
+#  <<: *create_yaml
   rules:
   - if: $CI_MERGE_REQUEST_ID
 
@@ -95,21 +95,7 @@ deploy:
     strategy: depend
   rules:
   - if: $CI_MERGE_REQUEST_ID
+# ------- End workaround
 
-execute:
-  stage: deploy
-  trigger:
-    include:
-    - artifact: ${TRIGGER_FILE}
-      job: use-build-results
-    strategy: depend
 
-# Takes latest image which was just built and deploys to test environment. MR not supported
-#deploy:
-#  stage: deploy
-#  trigger:
-#    include:
-#    - artifact: ${TRIGGER_FILE}
-#      job: get-latest-image
-#    strategy: depend
-#  when: manual
+
