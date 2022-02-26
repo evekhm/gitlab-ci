@@ -35,13 +35,16 @@ variables:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
   - cd $(basename ${DEPLOY_PROJECT})
   - TRIGGER_BRANCH=`git remote show https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git | grep 'HEAD branch' | cut -d' ' -f5`
+  - if [[ -z ${CI_COMMIT_BRANCH} ]]; then CHECK_BRANCH=${CI_COMMIT_BRANCH} fi
+  - if [[ -z ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} ]]; then CHECK_BRANCH=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} fi
   - >
-    if [[ -z ${CI_COMMIT_BRANCH} ]]; then
-      branch_exists_in_deploy=$(git ls-remote --heads origin ${CI_COMMIT_BRANCH})
+    if [[ -z ${CHECK_BRANCH} ]]; then
+      branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH})
       if [[ -z ${branch_exists_in_deploy} ]]; then
-          TRIGGER_BRANCH=${CI_COMMIT_BRANCH}
+          TRIGGER_BRANCH=${CHECK_BRANCH}
       fi
     fi
+  - echo TRIGGER_BRANCH=$TRIGGER_BRANCH
   - cd ..
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git "$(basename ${PROJECT_PATH})"
   - >
@@ -85,10 +88,11 @@ get-mr-image:
     NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
   script:
   - cat ${VARIABLES_FILE}
-  - echo $IMAGE $ENVIRONMENT $NAMESPACE
+  - echo "-----------------" $IMAGE $ENVIRONMENT $NAMESPACE
   <<: *create_yaml
   rules:
   - if: $CI_MERGE_REQUEST_ID
+  - !reference [.build_rules, rules]
 
 deploy MR to test:
   stage: deploy
