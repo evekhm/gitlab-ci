@@ -25,12 +25,13 @@ variables:
 #    - project: $DEPLOY_PROJECT
 #      file: '.gitlab-ci.yml'
 
-
-.create yaml: &create_yaml
+.use-build-results: &create_yaml
+  stage: vars
   script:
-  - cat ${VARIABLES_FILE}
-  - echo IMAGE = ${IMAGE}
   - echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+  - cat ${VARIABLES_FILE}
+  - source ${VARIABLES_FILE}
+  - echo IMAGE = ${IMAGE}  ENVIRONMENT=${ENVIRONMENT} NAMESPACE=${NAMESPACE}
   - apk update
   - apk add git
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
@@ -102,7 +103,7 @@ deploy MR to test:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: get-mr-image
+      job: create_yaml
     strategy: depend
   rules:
   - if: $CI_MERGE_REQUEST_ID
@@ -112,7 +113,7 @@ execute:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: use-build-results
+      job: create_yaml
     strategy: depend
 
 # Takes latest image which was just built and deploys to test environment. MR not supported
