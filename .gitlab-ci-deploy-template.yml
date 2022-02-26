@@ -2,8 +2,6 @@
 # IMPORTANT: Do not rename this file or move to another folder. Doing so would
 #            break the CI pipelines of projects that "include:" this file.
 #
-# Included Variables
-
 include:
   .gitlab-ci-build-vars.yml
 
@@ -14,17 +12,6 @@ stages:
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
-
-
-#deploy mr:
-#  stage: deploy
-#  rules:
-#  - if: $CI_MERGE_REQUEST_ID
-#  trigger:
-#    include:
-#    - project: $DEPLOY_PROJECT
-#      file: '.gitlab-ci.yml'
-
 
 .create yaml: &create_yaml
   script:
