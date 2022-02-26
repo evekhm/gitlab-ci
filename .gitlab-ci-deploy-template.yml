@@ -25,8 +25,8 @@ variables:
 #    - project: $DEPLOY_PROJECT
 #      file: '.gitlab-ci.yml'
 
-use-build-results:
-  stage: vars
+
+.create yaml: &create_yaml
   script:
   - echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
   - cat ${VARIABLES_FILE}
@@ -66,12 +66,9 @@ use-build-results:
     - ${TRIGGER_FILE}
 
 
-#use-build-results:
-#  stage: vars
-#  script:
-#  - cat ${VARIABLES_FILE}
-#  - source ${VARIABLES_FILE}
-#  <<: *create_yaml
+use-build-results:
+  stage: vars
+  <<: *create_yaml
 
 #get-latest-image:
 #  stage: vars
@@ -82,28 +79,19 @@ use-build-results:
 #  - echo "get-latest-image" BRANCH = ${CI_COMMIT_BRANCH}
 #  <<: *create_yaml
 
-# GitLab Limitation, cannot execute same way the flow on the MR
-#get-mr-image:
-#  stage: vars
-#  variables:
-#    IMAGE: $MR_IMAGE_BRANCH
-#    ENVIRONMENT: $TEST_ENV_NAME
-#    NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-#  script:
-#  - cat ${VARIABLES_FILE}
-#  - source ${VARIABLES_FILE}
-#  - echo "-----------------" $IMAGE $ENVIRONMENT $NAMESPACE
-#  <<: *create_yaml
-#  rules:
-#  - if: $CI_MERGE_REQUEST_ID
-#  - !reference [.build_rules, rules]
+# Workaround GitLab Limitation, cannot execute same way the flow on the MR
+get-mr-image:
+  stage: vars
+  <<: *create_yaml
+  rules:
+  - if: $CI_MERGE_REQUEST_ID
 
 deploy MR to test:
   stage: deploy
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: use-build-results
+      job: get-mr-image
     strategy: depend
   rules:
   - if: $CI_MERGE_REQUEST_ID
