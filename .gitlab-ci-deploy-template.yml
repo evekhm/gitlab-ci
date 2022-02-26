@@ -43,8 +43,8 @@ variables:
     if [[ -n ${CHECK_BRANCH} ]]; then
       echo CHECK_BRANCH=$CHECK_BRANCH
       git ls-remote --heads origin ${CHECK_BRANCH}
-      branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH})
-      if [[ -n ${branch_exists_in_deploy} ]]; then
+      branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH} | wc -l)
+      if [[ "branch_exists_in_deploy" -eq 1 ]]; then
           TRIGGER_BRANCH=${CHECK_BRANCH}
       fi
     fi
