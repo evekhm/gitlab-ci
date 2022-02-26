@@ -25,7 +25,7 @@ variables:
 #    - project: $DEPLOY_PROJECT
 #      file: '.gitlab-ci.yml'
 
-.use-build-results: &create_yaml
+use-build-results:
   stage: vars
   script:
   - echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
@@ -66,12 +66,12 @@ variables:
     - ${TRIGGER_FILE}
 
 
-use-build-results:
-  stage: vars
-  script:
-  - cat ${VARIABLES_FILE}
-  - source ${VARIABLES_FILE}
-  <<: *create_yaml
+#use-build-results:
+#  stage: vars
+#  script:
+#  - cat ${VARIABLES_FILE}
+#  - source ${VARIABLES_FILE}
+#  <<: *create_yaml
 
 #get-latest-image:
 #  stage: vars
@@ -83,19 +83,19 @@ use-build-results:
 #  <<: *create_yaml
 
 # GitLab Limitation, cannot execute same way the flow on the MR
-get-mr-image:
-  stage: vars
-  variables:
-    IMAGE: $MR_IMAGE_BRANCH
-    ENVIRONMENT: $TEST_ENV_NAME
-    NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-  script:
-  - cat ${VARIABLES_FILE}
-  - source ${VARIABLES_FILE}
-  - echo "-----------------" $IMAGE $ENVIRONMENT $NAMESPACE
-  <<: *create_yaml
-  rules:
-  - if: $CI_MERGE_REQUEST_ID
+#get-mr-image:
+#  stage: vars
+#  variables:
+#    IMAGE: $MR_IMAGE_BRANCH
+#    ENVIRONMENT: $TEST_ENV_NAME
+#    NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+#  script:
+#  - cat ${VARIABLES_FILE}
+#  - source ${VARIABLES_FILE}
+#  - echo "-----------------" $IMAGE $ENVIRONMENT $NAMESPACE
+#  <<: *create_yaml
+#  rules:
+#  - if: $CI_MERGE_REQUEST_ID
 #  - !reference [.build_rules, rules]
 
 deploy MR to test:
@@ -103,7 +103,7 @@ deploy MR to test:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: create_yaml
+      job: use-build-results
     strategy: depend
   rules:
   - if: $CI_MERGE_REQUEST_ID
@@ -113,7 +113,7 @@ execute:
   trigger:
     include:
     - artifact: ${TRIGGER_FILE}
-      job: create_yaml
+      job: use-build-results
     strategy: depend
 
 # Takes latest image which was just built and deploys to test environment. MR not supported
