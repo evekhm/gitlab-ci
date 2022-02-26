@@ -35,8 +35,8 @@ variables:
   - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
   - cd $(basename ${DEPLOY_PROJECT})
   - TRIGGER_BRANCH=`git remote show https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git | grep 'HEAD branch' | cut -d' ' -f5`
-  - if [[ -z ${CI_COMMIT_BRANCH} ]]; then CHECK_BRANCH=${CI_COMMIT_BRANCH} fi
-  - if [[ -z ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} ]]; then CHECK_BRANCH=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} fi
+  - if [[ -z ${CI_COMMIT_BRANCH} ]]; then CHECK_BRANCH=${CI_COMMIT_BRANCH}; fi
+  - if [[ -z ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} ]]; then CHECK_BRANCH=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}; fi
   - >
     if [[ -z ${CHECK_BRANCH} ]]; then
       branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH})
