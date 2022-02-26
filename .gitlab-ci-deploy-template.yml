@@ -16,14 +16,14 @@ variables:
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
 
 
-deploy mr:
-  stage: deploy
-  rules:
-  - if: $CI_MERGE_REQUEST_ID
-  trigger:
-    include:
-    - project: $DEPLOY_PROJECT
-      file: '.gitlab-ci.yml'
+#deploy mr:
+#  stage: deploy
+#  rules:
+#  - if: $CI_MERGE_REQUEST_ID
+#  trigger:
+#    include:
+#    - project: $DEPLOY_PROJECT
+#      file: '.gitlab-ci.yml'
 
 
 .create yaml: &create_yaml
@@ -81,7 +81,7 @@ get-mr-image:
   stage: vars
   variables:
     IMAGE: $MR_IMAGE_BRANCH
-    ENVIRONMENT: test
+    ENVIRONMENT: $TEST_ENV_NAME
     NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
   script:
   - echo $IMAGE $ENVIRONMENT $NAMESPACE
