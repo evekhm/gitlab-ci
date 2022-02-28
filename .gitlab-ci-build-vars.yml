@@ -27,7 +27,7 @@ variables:
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
-      NAMESPACE: $DEMO_ENV_NAME # not to use the main branch name
+      NAMESPACE: ${DEMO_ENV_NAME}-${CI_COMMIT_REF_SLUG} # not to use the main branch name
       ENVIRONMENT: $DEMO_ENV_NAME
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
   # TEST Deployment on Merge Request
@@ -36,7 +36,7 @@ variables:
       IMAGE: $MR_IMAGE
       IMAGE_LATEST: $MR_IMAGE_BRANCH
       ENVIRONMENT: $TEST_ENV_NAME
-      NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+      NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_TEST
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -44,5 +44,5 @@ variables:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: $DEV_ENV_NAME
-      NAMESPACE: $CI_COMMIT_BRANCH
+      NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEV
