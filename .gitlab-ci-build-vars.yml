@@ -4,16 +4,16 @@ variables:
   VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
 
   # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
-  QA_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_SHORT_SHA}"
+  QA_IMAGE: "${CI_REGISTRY_IMAGE}/qa:${CI_COMMIT_SHORT_SHA}"
   # Default latest tag for particular branch
-  QA_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/qa:${CI_COMMIT_REF_SLUG}"
+  QA_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/qa:latest"
 
-  MR_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_ID}"
-  MR_IMAGE_BRANCH: "${CI_REGISTRY}/${CI_PROJECT_PATH}/mr:${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
+  MR_IMAGE: "${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/mr:${CI_MERGE_REQUEST_ID}"
+  MR_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/mr:latest"
 
   # Released Image Artefacts
-  RELEASE_IMAGE: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:${CI_COMMIT_SHORT_SHA}"
-  RELEASE_IMAGE_LATEST: "${CI_REGISTRY}/${CI_PROJECT_PATH}/released:latest"
+  RELEASE_IMAGE: "${CI_REGISTRY_IMAGE}/released:${CI_COMMIT_SHORT_SHA}"
+  RELEASE_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/released:latest"
 
   # Environment names
   DEV_ENV_NAME: 'development'
@@ -30,19 +30,22 @@ variables:
       NAMESPACE: ${DEMO_ENV_NAME}-${CI_COMMIT_REF_SLUG} # not to use the main branch name
       ENVIRONMENT: $DEMO_ENV_NAME
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
+
   # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
     variables:
       IMAGE: $MR_IMAGE
-      IMAGE_LATEST: $MR_IMAGE_BRANCH
+      IMAGE_LATEST: $MR_IMAGE_LATEST
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_TEST
+
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
-      IMAGE_LATEST: $QA_IMAGE_BRANCH
+      IMAGE_LATEST: $QA_IMAGE_LATEST
+      FALLBACK_IMAGE: $RELEASE_IMAGE_LATEST
       ENVIRONMENT: $DEV_ENV_NAME
       NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEV
