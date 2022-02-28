@@ -1,4 +1,6 @@
 variables:
+  CONTAINER_REGISTRY: "registry.gitlab.com" #default Container Registry host for the Images
+
   VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
 
   # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
@@ -20,22 +22,27 @@ variables:
 
 .build_rules:
   rules:
+  # DEMO Deployment on commit to the main branch
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
       IMAGE: $RELEASE_IMAGE
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
       NAMESPACE: $DEMO_ENV_NAME # not to use the main branch name
       ENVIRONMENT: $DEMO_ENV_NAME
-      KUBE_CONTEXT: $SECRET
+      KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
+  # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
     variables:
       IMAGE: $MR_IMAGE
       IMAGE_LATEST: $MR_IMAGE_BRANCH
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+      KUBE_CONTEXT: $KUBE_CONTEXT_TEST
+  # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE: $QA_IMAGE
       IMAGE_LATEST: $QA_IMAGE_BRANCH
       ENVIRONMENT: $DEV_ENV_NAME
       NAMESPACE: $CI_COMMIT_BRANCH
+      KUBE_CONTEXT: $KUBE_CONTEXT_DEV
