@@ -23,7 +23,7 @@ variables:
 
 
 
-.build_rules:
+.build_vars:
   rules:
   # DEMO Deployment on commit to the main branch => Released images
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
