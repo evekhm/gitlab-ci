@@ -26,6 +26,7 @@ variables:
       IMAGE_LATEST: $RELEASE_IMAGE_LATEST
       NAMESPACE: $DEMO_ENV_NAME # not to use the main branch name
       ENVIRONMENT: $DEMO_ENV_NAME
+      KUBE_CONTEXT: 'eva'
   - if: $CI_MERGE_REQUEST_ID
     variables:
       IMAGE: $MR_IMAGE
