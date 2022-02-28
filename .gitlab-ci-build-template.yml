@@ -48,6 +48,8 @@ variables:
 
 build image:
   stage: build
+  rules:
+  - !reference [.build_vars, rules]
   <<: *build
   artifacts:
     paths:
