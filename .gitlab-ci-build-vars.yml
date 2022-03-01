@@ -17,7 +17,7 @@ variables:
   MR_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/${MR_TAG_PREFIX}:latest"
 
   # Released Image Artefacts
-  RELEASE: "released"
+  RELEASED: "released"
   RELEASE_IMAGE: "${CI_REGISTRY_IMAGE}/${RELEASE_TAG_PREFIX}:${CI_COMMIT_SHORT_SHA}"
   RELEASE_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${RELEASE_TAG_PREFIX}:latest"
 
@@ -27,7 +27,7 @@ variables:
   # DEMO Deployment on commit to the main branch => Released images
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
-      IMAGE_TYPE: $RELEASE
+      IMAGE_TYPE: $RELEASED
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE}
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       NAMESPACE: ${NAMESPACE:-DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
