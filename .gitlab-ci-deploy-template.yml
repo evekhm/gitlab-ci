@@ -12,7 +12,7 @@ stages:
 variables:
   PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
   TRIGGER_FILE: .gitlab-ci-trigger-template.yml
-  BRANCH_NAME: ''
+#  BRANCH_NAME: ''
 
 .create yaml: &create_yaml
   script:

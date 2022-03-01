@@ -20,7 +20,7 @@ variables:
   DOCKER_IMAGE_VERSION: 19.03.1
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
-  BRANCH_NAME: "" #Workaround for Gitlab not coping with un-set variables in the rules
+#  BRANCH_NAME: "" #Workaround for Gitlab not coping with un-set variables in the rules
 
 .build_image: &build
   environment: $ENVIRONMENT
