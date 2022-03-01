@@ -30,9 +30,10 @@ variables:
       IMAGE_TYPE: $RELEASED
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE} #<path_to_repo>/released
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-      NAMESPACE: ${NAMESPACE:-DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
-      ENVIRONMENT: ${ENVIRONMENT:-$DEMO_ENV_NAME}
+      NAMESPACE: ${DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
+      ENVIRONMENT: ${$DEMO_ENV_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
+      TEST_EVA: "eva_test"
 
   # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
