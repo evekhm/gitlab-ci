@@ -45,8 +45,7 @@ variables:
       KUBE_CONTEXT: $KUBE_CONTEXT_TEST
 
   # DEVELOPMENT Deployment on commit to the feature branch
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" && ($BRANCH_NAME == null || $BRANCH_NAME == '' || $BRANCH_NAME == $CI_COMMIT_BRANCH)
-    variables:
+  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
       IMAGE_TYPE: $QA
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
