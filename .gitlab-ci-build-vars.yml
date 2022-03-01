@@ -4,7 +4,6 @@ variables:
   TEST_ENV_NAME: 'test'
   DEMO_ENV_NAME: 'demo'
 
-  DEFAULT_DEVELOPMENT: 'development_default_branch' # workaround since GitLab cannot handle rules with the BRANCH_NAME being unser. It will simple skip the Job even if rules check for $BRANCH_NAME == null
   VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
 
   # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
@@ -29,7 +28,7 @@ variables:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
       IMAGE_TYPE: $RELEASED
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE}
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE} #<path_to_repo>/released
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       NAMESPACE: ${NAMESPACE:-DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
       ENVIRONMENT: ${ENVIRONMENT:-$DEMO_ENV_NAME}
@@ -39,7 +38,7 @@ variables:
   - if: $CI_MERGE_REQUEST_ID
     variables:
       IMAGE_TYPE: $MR
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}:$IMAGE_TYPE  #<path_to_repo>/<feature_name>/mr
       IMAGE_TAG: $CI_MERGE_REQUEST_ID
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
@@ -49,7 +48,7 @@ variables:
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" && ($BRANCH_NAME == '' || $BRANCH_NAME == $CI_COMMIT_BRANCH)
     variables:
       IMAGE_TYPE: $QA
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       ENVIRONMENT: $DEV_ENV_NAME
       NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
