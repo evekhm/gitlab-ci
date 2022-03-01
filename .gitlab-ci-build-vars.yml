@@ -34,21 +34,21 @@ variables:
       ENVIRONMENT: ${ENVIRONMENT:-$DEMO_ENV_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
 
-  # TEST Deployment on Merge Request
-  - if: $CI_MERGE_REQUEST_ID
-    variables:
-      IMAGE_TYPE: $MR
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE  #<path_to_repo>/<feature_name>/mr
-      IMAGE_TAG: $CI_MERGE_REQUEST_ID
-      ENVIRONMENT: $TEST_ENV_NAME
-      NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
-      KUBE_CONTEXT: $KUBE_CONTEXT_TEST
-
-  # DEVELOPMENT Deployment on commit to the feature branch
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" && ($BRANCH_NAME == null || $BRANCH_NAME == '' || $BRANCH_NAME == $CI_COMMIT_BRANCH)
-      IMAGE_TYPE: $QA
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
-      IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-      ENVIRONMENT: $DEV_ENV_NAME
-      NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
-      KUBE_CONTEXT: $KUBE_CONTEXT_DEV
+#  # TEST Deployment on Merge Request
+#  - if: $CI_MERGE_REQUEST_ID
+#    variables:
+#      IMAGE_TYPE: $MR
+#      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE  #<path_to_repo>/<feature_name>/mr
+#      IMAGE_TAG: $CI_MERGE_REQUEST_ID
+#      ENVIRONMENT: $TEST_ENV_NAME
+#      NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+#      KUBE_CONTEXT: $KUBE_CONTEXT_TEST
+#
+#  # DEVELOPMENT Deployment on commit to the feature branch
+#  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event" && ($BRANCH_NAME == null || $BRANCH_NAME == '' || $BRANCH_NAME == $CI_COMMIT_BRANCH)
+#      IMAGE_TYPE: $QA
+#      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
+#      IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+#      ENVIRONMENT: $DEV_ENV_NAME
+#      NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
+#      KUBE_CONTEXT: $KUBE_CONTEXT_DEV
