@@ -24,8 +24,7 @@ variables:
 .build_image: &build
   environment: $ENVIRONMENT
   script:
-  - !reference [.build_vars, script]
-  - echo "Building Image with tags [$IMAGE], [$IMAGE_LATEST]"
+  - set -x
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
   - echo CI_MERGE_REQUEST_TARGET_BRANCH_NAME = $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
@@ -34,6 +33,8 @@ variables:
   - echo CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID
   - export IMAGE=${IMAGE_REPO}:${IMAGE_TAG}
   - export IMAGE_LATEST=${IMAGE_REPO}:latest
+  - echo "Building IMAGE=[$IMAGE_REPO] with tag [$IMAGE_TAG]"
+  - echo IMAGE_LATEST=$IMAGE_LATEST
   - docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
   - docker push ${IMAGE}
   - docker push ${IMAGE_LATEST}
