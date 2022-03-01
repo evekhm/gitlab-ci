@@ -28,7 +28,7 @@ variables:
   # DEMO Deployment on commit to the main branch => Released images
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
-      IMAGE_TYPE: $RELEASE
+      IMAGE_TYPE: "released"
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE}
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       NAMESPACE: ${DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
