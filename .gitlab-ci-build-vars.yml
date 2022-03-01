@@ -7,17 +7,17 @@ variables:
   VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
 
   # For the default QA image,  use $CI_COMMIT_SHA as tag since it's always available
-  QA_TAG_PREFIX: "qa"
+  QA: "qa"
   QA_IMAGE: "${CI_REGISTRY_IMAGE}/${QA_TAG_PREFIX}:${CI_COMMIT_SHORT_SHA}"
   # Default latest tag for particular branch
   QA_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/${QA_TAG_PREFIX}:latest"
 
-  MR_TAG_PREFIX: "mr"
+  MR: "mr"
   MR_IMAGE: "${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/${MR_TAG_PREFIX}:${CI_MERGE_REQUEST_ID}"
   MR_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/${MR_TAG_PREFIX}:latest"
 
   # Released Image Artefacts
-  RELEASE_TAG_PREFIX: "released"
+  RELEASED: "released"
   RELEASE_IMAGE: "${CI_REGISTRY_IMAGE}/${RELEASE_TAG_PREFIX}:${CI_COMMIT_SHORT_SHA}"
   RELEASE_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${RELEASE_TAG_PREFIX}:latest"
 
@@ -28,16 +28,18 @@ variables:
   # DEMO Deployment on commit to the main branch => Released images
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
-      IMAGE_REPO: ${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/$RELEASE_TAG_PREFIX
+      IMAGE_TYPE: $RELEASE
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE}
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-      NAMESPACE: ${DEMO_ENV_NAME}-${CI_COMMIT_REF_SLUG}
+      NAMESPACE: ${DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
       ENVIRONMENT: $DEMO_ENV_NAME
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
 
   # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
     variables:
-      IMAGE_REPO: ${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/${FEATURE_NAME:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$MR_TAG_PREFIX
+      IMAGE_TYPE: $MR
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE
       IMAGE_TAG: $CI_MERGE_REQUEST_ID
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
@@ -46,7 +48,8 @@ variables:
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
-      IMAGE_REPO: ${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/${FEATURE_NAME:-$CI_COMMIT_REF_SLUG}/$QA_TAG_PREFIX
+      IMAGE_TYPE: $QA
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       IMAGE_FALLBACK: $RELEASE_IMAGE_LATEST
       ENVIRONMENT: $DEV_ENV_NAME
@@ -58,8 +61,7 @@ variables:
     - |
       if [[ $CI_COMMIT_BRANCH = $CI_DEFAULT_BRANCH ]]; then
         export IMAGE_REPO=${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/$RELEASE_TAG_PREFIX
-        export IMAGE_TAG=$CI_COMMIT_SHORT_SHA
-        export NAMESPACE=${DEMO_ENV_NAME}-${CI_COMMIT_REF_SLUG}
+        export NAMESPACE=${DEMO_ENV_NAME}
         export ENVIRONMENT=$DEMO_ENV_NAME
         export KUBE_CONTEXT=$KUBE_CONTEXT_DEMO
       elif [[ -n "$CI_MERGE_REQUEST_ID" ]]; then
