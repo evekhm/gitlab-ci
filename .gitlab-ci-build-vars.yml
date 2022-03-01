@@ -22,7 +22,6 @@ variables:
   RELEASE_IMAGE_LATEST: "${CI_REGISTRY_IMAGE}/${RELEASE_TAG_PREFIX}:latest"
 
 
-
 .build_vars:
   rules:
   # DEMO Deployment on commit to the main branch => Released images
@@ -31,9 +30,9 @@ variables:
       IMAGE_TYPE: $RELEASE
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE}
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-      NAMESPACE: ${DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
-      ENVIRONMENT: $DEMO_ENV_NAME
-      KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
+      NAMESPACE: ${NAMESPACE:-DEMO_ENV_NAME} # main branches can be named differently, so using unique namespace 'demo' instead
+      ENVIRONMENT: ${ENVIRONMENT:-$DEMO_ENV_NAME}
+      KUBE_CONTEXT: ${KUBE_CONTEXT:-$KUBE_CONTEXT_DEMO}
 
   # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
@@ -43,7 +42,7 @@ variables:
       IMAGE_TAG: $CI_MERGE_REQUEST_ID
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
-      KUBE_CONTEXT: $KUBE_CONTEXT_TEST
+      KUBE_CONTEXT: ${KUBE_CONTEXT:-$KUBE_CONTEXT_TEST}
 
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -54,27 +53,4 @@ variables:
       IMAGE_FALLBACK: $RELEASE_IMAGE_LATEST
       ENVIRONMENT: $DEV_ENV_NAME
       NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
-      KUBE_CONTEXT: $KUBE_CONTEXT_DEV
-
-  script:
-    - echo "Executing script"
-    - |
-      if [[ $CI_COMMIT_BRANCH = $CI_DEFAULT_BRANCH ]]; then
-        export IMAGE_REPO=${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/$RELEASE_TAG_PREFIX
-        export NAMESPACE=${DEMO_ENV_NAME}
-        export ENVIRONMENT=$DEMO_ENV_NAME
-        export KUBE_CONTEXT=$KUBE_CONTEXT_DEMO
-      elif [[ -n "$CI_MERGE_REQUEST_ID" ]]; then
-        export IMAGE_REPO=${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/${FEATURE_NAME:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$MR_TAG_PREFIX
-        export IMAGE_TAG=$CI_MERGE_REQUEST_ID
-        export NAMESPACE=${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
-        export ENVIRONMENT=$TEST_ENV_NAME
-        export KUBE_CONTEXT=$KUBE_CONTEXT_TEST
-      else
-        export IMAGE_REPO=${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/${FEATURE_NAME:-$CI_COMMIT_REF_SLUG}/$QA_TAG_PREFIX
-        export IMAGE_FALLBACK=${APPLICATION_REPO:-$CI_REGISTRY_IMAGE}/$RELEASE_TAG_PREFIX
-        export IMAGE_TAG=$CI_COMMIT_SHORT_SHA
-        export NAMESPACE=${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
-        export ENVIRONMENT=$DEV_ENV_NAME
-        export KUBE_CONTEXT=$KUBE_CONTEXT_DEV
-      fi
+      KUBE_CONTEXT: ${KUBE_CONTEXT:-$KUBE_CONTEXT_DEV}
