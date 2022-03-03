@@ -1,6 +1,5 @@
 # GitLab CI Modules
 
-##Table of Contents
 
 ## Table of Contents
 - [Overview](#overview)
@@ -16,11 +15,15 @@
   * [Triggered from Pipeline](#triggered-from-pipeline)
   * [Deploy CI file](#deploy-ci-file)
   * [Deploy script](#deploy-script)
+- [Demo](#demo)
+  * [Deployment to Demo](#deployment-to-demo)
+  * [Deployment to Development](#deployment-to-development)
+  * [Deployment to Test](#deployment-to-test)
 - [GitLab Limitations](#gitlab-limitations)
 
 ## Overview
 
-The goal of this CI/CD infrastructure is to leverage Gitlab integration with GCP and allow single Project to be used for different GCP deployments addressing the various personas needs.
+The goal of this CI/CD infrastructure is to leverage Gitlab integration with GCP and allow single source of truth being Git repository to seamlessly work with configurable GCP deployments addressing the various personas needs.
 The offered templates (modules) allow simplifying CI/CD while accounting for the complex micro-service architecture, when different services can be developed independently and kept in different projects. 
 
 
@@ -30,6 +33,9 @@ Use Cases:
 3) As a *QA engineer*, I want to be able to have MR related feature projects bee deployed into the test environment.
 4) As a *Sales Person*, I want to have a stable demo environment for the customer presentations.
 5) ...
+
+## Next Steps
+Currently, destroying of the deployments is a manual step which could be improved.
 
 ## Setup
 ### GitLab Projects
@@ -60,10 +66,6 @@ CI/CD covers Following Environments:
 ![](img/feature-development.png)
 
 ![](img/downstream-trigger.png)
-
-![](img/commit-pipeline.png)
-
-![](img/merge-rq-pipeline.png)
 
 ## Build
 ### Image Tagging Logic
@@ -197,6 +199,137 @@ spec:
       - name: regcred
       restartPolicy: Always
 ```
+## Demo
+### Setup
+You will need following components:
+- GCP Project with a GKE cluster
+  * Provision GCP project and a GKE Cluster used for the deployment. It can be the same Project/Cluster for all environments (test, development, demo), or a dedicated (Cluster or Project) per environment.
+- GitLab Projects:
+  * Project for configuring  GitLab Agent and connecting to GCP Project
+    * Instructions to Install GitLab Agent [here](https://docs.gitlab.com/ee/user/clusters/agent/install/index.html).
+  * **gitlab-ci**: Project with [this gitlab-ci](https://github.com/evekhm/gitlab-ci.git) repository forked.
+  * **ApplicationA**: Project with a forked source from this sample [nginx application](https://github.com/evekhm/applicationa.git).
+    * Local Changes:
+      * DEPLOY_PROJECT should point to the path of the GitLab  DeployApplications Project (created in the next step)
+      * include project (Line 5 and Line 7) should point to the path of the gitlab-ci project (created in the previous step).
+  * **DeployApplications**: Project with a forked source from this sample [DeployApplications](https://github.com/evekhm/DeployApplications.git).
+    * Local Changes:
+      * include project (Line 2) should point to the path of the gitlab-ci project.
+      * APPLICATION_NAMESPACE (Line 9) should point to the path of the ApplicationA (see below)
+      * GITLAB_AGENT (Line 12)  should point to the GitLab Agent path installed earlier.
+    * When using Private Repositories, you will need to Add GITLAB_AUTH variable of File type to CI/CD Settings. This File is used to create `regcred ` secret to access image.
+      * Generate  GitLab Token followings steps here with 'read registry' scope. 
+      * Use generated token to get an auth file (for example, in the Terminal of the GCP Project):
+      ```shell
+        docker login -u <user_name> -p <gitlab_token> registry.gitlab.com
+        cat $HOME/.docker/config.json
+      ```
+      * To instruct GKE to use secret when Pulling Images from GitLab repository, following lines to be added to the deployment yaml file:
+
+     ```shell
+        imagePullSecrets:
+         - name: regcred
+     ```
+
+
+
+### Deployment to Demo
+#### ApplicationA Pipeline
+Commit to the main branch of the ApplicationA (or run the Pipeline manually)
+
+- This will trigger building of the nginx image
+- Triggering of the deployment with the built image tag 
+
+![](img/commit-pipeline.png)
+
+Image is pushed to the ApplicationA GitLab Container Registry under `released`
+
+![](img/released-image.png)
+
+If you go yo yhe GCP Cluster -> Workloads, it shows the built image is used for deployment (same HASH number)
+![](img/deployed-image.png)
+
+Got to Services/Ingress and by using external IP and Port navigate to the Application web page:
+![](img/service.png)
+
+Here is our nginx deployment page:
+![](img/hello-demo.png)
+#### DeployApplications PipeLine
+Run Pipeline from  the DeployApplications Project
+
+- This will trigger deployment of the registered ApplicationA using latest released image
+
+![](img/deploy-main.png)
+
+![](img/deploy-applications-demo.png)
+
+![](img/deploy-released.png)
+
+### Deployment to Development
+Now lets say we want to make changes to ApplicationA. And if there were other services such as Application B and C - we would want to keep them as-is.
+
+- branch-off ApplicationA and call it `feature1`
+- make following changes to the file `ApplicationA/www/data/index.html` (line 7 and line 9) to change the text and background color
+
+```shell
+<!doctype html>
+<html>
+<head>
+  <title>Hello nginx</title>
+  <meta charset="utf-8" />
+</head>
+<body style="background-color:red;">
+<h1>
+  Hello World from Feature1!
+</h1>
+</body>
+</html>
+```
+
+> Since we have not branched off DeployApplications, the ApplicationA Pipeline will trigger main branch of th DeployApplications project.
+We could create feature1 branch for the DeployApplications and change KUBE_CONTEXT_DEV to deploy feature1 in a dedicated Project/Cluster.
+We also could branch off any of the other applications/services and by naming branch the same name,   'feature1' in this case, we would direct modified image to the development environment with the namespace development-feature1.
+By default, if there is no branch with that  name - latest released image is used for the deployment.
+
+Image is pushed to the ApplicationA Gitlab Container Registry under `feature1/qa`
+![](img/qa-image.png)
+
+
+Now we have a new deployment in the `development-feature1` namespace:
+![](img/deploy-applications-dev.png)
+
+![](img/deploy-qa.png)
+
+Go to Services/Ingress, select service in the development-feature1 namespace, and use IP and Port to open the Application's web page: 
+![](img/service.png)
+
+Here is our nginx deployment page:
+![](img/hello-dev.png)
+
+#### Changes to Development Environment
+Let's say we want to have a standalone GCP Project and Cluster which is different from the demo/test setup.
+
+- branch-off DeployApplications Project
+- Change KUBE_CONTEXT_DEV to point to the desired Project/Cluster.
+- Run the Pipeline 
+  * A dedicated development deployment will be created and any further changes for ApplicationA will be re-directed to this environment.  
+
+![](img/deploy_dev.png)
+
+This triggered deployment into the new Project/Cluster using the latest image(s) for feature1
+
+![](img/deploy_dev_2.png)
+
+### Deployment To Test
+Let's create a merge request and see how test environment will be initiated.
+
+![](img/merge-rq-pipeline.png)
+
+Image is pushed to the ApplicationA Gitlab Container Registry under `feature1/mr`
+![](img/build-image-mr.png)
+
+Deployed into `test-feature1` namespace:
+![](img/deploy-mr.png)
 
 
 ## GitLab Limitations
