@@ -2,17 +2,20 @@
 # IMPORTANT: Do not rename this file or move to another folder. Doing so would
 #            break the CI pipelines of projects that "include:" this file.
 #
+
+#Need to dynamically generate yml file, because otherwise parameters such as Project to be Triggered cannot be dynamically set.
+
 include:
-  .gitlab-ci-build-vars.yml
+- local: .build-vars.gitlab-ci.yml
 
 stages:
 - vars
 - deploy
 
 variables:
-  PROJECT_PATH: gcp-solutions/hcls/claims-modernization/gitlab-ci
-  TRIGGER_FILE: .gitlab-ci-trigger-template.yml
-#  BRANCH_NAME: ''
+  PROJECT_PATH: ${CI_PROJECT_NAMESPACE}
+  TRIGGER_FILE: .gitlab/ci/deploy-template.yml
+
 
 .create yaml: &create_yaml
   script:

@@ -3,13 +3,14 @@
 #            break the CI pipelines of projects that "include:" this file.
 #
 include:
-  .gitlab-ci-build-vars.yml
+- local: .build-vars.gitlab-ci.yml
 
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE
 
 stages:
 - deploy
+- destroy
 
 image: google/cloud-sdk
 
@@ -57,8 +58,7 @@ image: google/cloud-sdk
 - echo "Patching image $IMAGE of application $APPLICATION"
 - if [ -n "$CI_COMMIT_BRANCH" ]; then echo source branch is  $CI_COMMIT_BRANCH; fi
 - if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered my merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
-- APPLY="${CI_PROJECT_DIR}/applications/${APPLICATION}/gcp/apply.sh"
-- APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE bash $APPLY
+- APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/deploy.sh
 - kubectl get pods -n "$NAMESPACE"
 
 # Pipeline was triggered - check the branch
@@ -103,8 +103,7 @@ patch:
           if [ $IMAGE_EXISTS -eq '0' ]; then IMAGE=$IMAGE_RELEASED; fi
       fi
       echo $IMAGE, $IMAGE_EXISTS
-      APPLY="${CI_PROJECT_DIR}/applications/${APPLICATION}/gcp/apply.sh"
-      APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE bash $APPLY
+      APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/deploy.sh
   done
 - kubectl get pods -n "$NAMESPACE"
 
