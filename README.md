@@ -147,9 +147,9 @@ We are having the following structure for each of the registered applications in
 - k8s  - contains required yaml files for the deployment
 - gcp  - contains  logic to pass through parameters such as IMAGE
 
-####Examples:
+#### Examples:
 
-deploy.sh
+**deploy.sh**
 ```shell
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -165,7 +165,7 @@ else
 fi
 
 ```
-apply.sh
+**apply.sh**
 ```shell
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "***** Applying  $APPLICATION deployment  *****"
@@ -175,7 +175,7 @@ kubectl apply -f "$K8S/deployment.yaml" --namespace="$KUBE_NAMESPACE"
 kubectl apply -f "$K8S/service.yaml" --namespace="$KUBE_NAMESPACE" 
 ```
 
-deployment.sample.yaml
+**deployment.sample.yaml**
 ```shell
 apiVersion: apps/v1
 kind: Deployment
@@ -256,7 +256,9 @@ Got to Services/Ingress and by using external IP and Port navigate to the Applic
 ![](img/service.png)
 
 Here is our nginx deployment page:
+
 ![](img/hello-demo.png)
+
 #### DeployApplications PipeLine
 Run Pipeline from  the DeployApplications Project
 
