@@ -126,8 +126,6 @@ patch:
 deploy_main:
   environment: demo
   rules:
-  - if: '$KUBE_CONTEXT == null'
-    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" #exclude when commit NOT to a main branch
@@ -138,8 +136,6 @@ deploy_main:
 deploy_mr:
   environment: test
   rules:
-  - if: '$KUBE_CONTEXT == null'
-    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH #exclude when NOT a MR or MR not to the main branch
@@ -150,8 +146,8 @@ deploy_mr:
 deploy_dev:
   environment: development
   rules:
-  - if: '$KUBE_CONTEXT == null'
-    when: never
+#  - if: '$KUBE_CONTEXT == null' - THIS does not work, limitation of Gitlab rules
+#    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH #exclude MR and demo
