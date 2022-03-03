@@ -65,44 +65,7 @@ variables:
 - echo TRIGGER_BRANCH=$TRIGGER_BRANCH
 - cd ..
 - *generate_yaml
-## TODO Gitlab/YAML issue? Cannot use the line below, it will give following ERROR: jobs generate yaml config should implement a script: or a trigger: keyword
-# - *generate_yaml
-#
-# because the above does not work need to in-line the logic:
-
-# generate YAML
-#  - >
-#    printf "stages:
-#    - deploy-image
-#    deploy:
-#      stage: deploy-image
-#      rules:
-#      - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
-#        when: always
-#      variables:
-#        IMAGE: %s
-#        UPSTREAM_PROJECT_NAME: %s
-#        UPSTREAM_PROJECT_PATH: %s
-#        ENVIRONMENT: %s
-#        NAMESPACE: %s
-#        PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
-#      trigger:
-#        project: %s
-#        branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH}> "${TRIGGER_FILE}"
-#  - ls
-#  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git "${CI_PROJECT_NAME}"
-#  - >
-#    sed  's|__PROJECT__|'"${DEPLOY_PROJECT}"'|g;
-#          s|__BRANCH__|'"${TRIGGER_BRANCH}"'|g;
-#          s|__IMAGE__|'"${IMAGE}"'|g;
-#          s|__UPSTREAM_PROJECT_NAME__|'"${CI_PROJECT_NAME}"'|g;
-#          s|__UPSTREAM_PROJECT_PATH__|'"${CI_PROJECT_PATH}"'|g;
-#          s|__ENVIRONMENT__|'"${ENVIRONMENT}"'|g;
-#          s|__NAMESPACE__|'"${NAMESPACE}"'|g;
-#    '
-#    $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
-
-
+- cat ${TRIGGER_FILE}
 
 use-build-results:
   stage: vars
