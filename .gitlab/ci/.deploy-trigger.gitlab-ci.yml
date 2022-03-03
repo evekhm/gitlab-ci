@@ -14,7 +14,7 @@ stages:
 
 variables:
   PROJECT_PATH: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
-  TRIGGER_FILE: .gitlab/ci/deploy-template.yml
+  TRIGGER_FILE: /.gitlab/ci/deploy-template.yml
 
 
 .create yaml: &create_yaml
