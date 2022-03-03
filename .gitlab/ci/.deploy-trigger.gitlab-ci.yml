@@ -17,7 +17,7 @@ variables:
   TRIGGER_FILE: deploy-trigger.yml
 
 
-generate_yaml: &generate_yaml
+.generate_yaml: &generate_yaml
 - echo "generating trigger YAML"
 - >
   printf "stages:
