@@ -18,26 +18,26 @@ variables:
 
 
 generate_yaml: &generate_yaml
-  - echo "generating trigger YAML"
-  - >
-    printf "stages:
-    - deploy-image
-    deploy:
-      stage: deploy-image
-      rules:
-      - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
-        when: always
-      variables:
-        IMAGE: %s
-        UPSTREAM_PROJECT_NAME: %s
-        UPSTREAM_PROJECT_PATH: %s
-        ENVIRONMENT: %s
-        NAMESPACE: %s
-        PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
-      trigger:
-        project: %s
-        branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} > "${TRIGGER_FILE}"
-  - cat "${TRIGGER_FILE}"
+- echo "generating trigger YAML"
+- >
+  printf "stages:
+  - deploy-image
+  deploy:
+    stage: deploy-image
+    rules:
+    - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
+      when: always
+    variables:
+      IMAGE: %s
+      UPSTREAM_PROJECT_NAME: %s
+      UPSTREAM_PROJECT_PATH: %s
+      ENVIRONMENT: %s
+      NAMESPACE: %s
+      PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
+    trigger:
+      project: %s
+      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} > "${TRIGGER_FILE}"
+- cat "${TRIGGER_FILE}"
 
 
 
