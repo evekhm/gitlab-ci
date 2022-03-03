@@ -20,9 +20,9 @@ variables:
 .generate_yaml: &generate_yaml
 - echo "generating trigger YAML"
 - >
-  printf "stages:
-  - deploy-image
-  deploy:
+  printf "stages:\n
+  - deploy-image\n
+  deploy:\n
     stage: deploy-image
     rules:
     - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
