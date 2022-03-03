@@ -16,9 +16,12 @@ image: google/cloud-sdk
 
 .kube-context:
   before_script:
-  - echo "Setting KUBE_CONTEXT to $KUBE_CONTEXT"
-  - if [ -n "$KUBE_CONTEXT" ]; then kubectl config use-context "$KUBE_CONTEXT"; fi
-  - kubectl config current-context
+  - |
+    if [ -n "$KUBE_CONTEXT" ]; then
+        echo "Setting KUBE_CONTEXT to $KUBE_CONTEXT"
+        kubectl config use-context "$KUBE_CONTEXT"
+        kubectl config current-context
+    fi
 
 # Depends on GITLAB_AUTH - File defined inside Project Settings->CI/CD
 # Generated using:
@@ -42,7 +45,6 @@ image: google/cloud-sdk
 - echo ENVIRONMENT = $ENVIRONMENT
 - echo IMAGE = $IMAGE
 - echo NAMESPACE = $NAMESPACE
-- echo KUBE_CONTEXT=$KUBE_CONTEXT
 - echo UPSTREAM_PROJECT_NAME = $UPSTREAM_PROJECT_NAME
 - echo UPSTREAM_PROJECT_PATH = $UPSTREAM_PROJECT
 - echo Patching image $IMAGE of application $UPSTREAM_PROJECT_NAME, using $ENVIRONMENT environment and $NAMESPACE namespace
@@ -93,8 +95,9 @@ patch:
   for dir in ${CI_PROJECT_DIR}/applications/*/
   do
       APPLICATION=$(basename ${dir%*/})
-      IMAGE="${APP_REPO}/${APPLICATION}/${REPO_SUB:-}${IMAGE_TYPE}"
-      IMAGE_RELEASED="${APP_REPO}/${APPLICATION}/${RELEASED}"
+      APP_REPO="${CI_REGISTRY}/${APPLICATION_NAMESPACE}/${APPLICATION}"
+      IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
+      IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
       echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED
       docker manifest inspect $IMAGE > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
       echo $IMAGE, $IMAGE_EXISTS
@@ -123,6 +126,8 @@ patch:
 deploy_main:
   environment: demo
   rules:
+  - if: '$KUBE_CONTEXT == null'
+    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" #exclude when commit NOT to a main branch
@@ -133,6 +138,8 @@ deploy_main:
 deploy_mr:
   environment: test
   rules:
+  - if: '$KUBE_CONTEXT == null'
+    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH #exclude when NOT a MR or MR not to the main branch
@@ -143,6 +150,8 @@ deploy_mr:
 deploy_dev:
   environment: development
   rules:
+  - if: '$KUBE_CONTEXT == null'
+    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH #exclude MR and demo
