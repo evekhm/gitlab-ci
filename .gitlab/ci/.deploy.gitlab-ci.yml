@@ -3,7 +3,7 @@
 #            break the CI pipelines of projects that "include:" this file.
 #
 include:
-- local: .build-vars.gitlab-ci.yml
+- local: /.gitlab/ci/.build-vars.gitlab-ci.yml
 
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE

@@ -6,7 +6,7 @@
 #Need to dynamically generate yml file, because otherwise parameters such as Project to be Triggered cannot be dynamically set.
 
 include:
-- local: .build-vars.gitlab-ci.yml
+- local: /.gitlab/ci/.build-vars.gitlab-ci.yml
 
 stages:
 - vars
