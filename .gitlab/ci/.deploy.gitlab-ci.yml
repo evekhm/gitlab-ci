@@ -7,6 +7,8 @@ include:
 
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE
+  DEPLOY_SCRIPT: "deploy.sh"
+  PRE_DEPLOY_SCRIPT: "pre_deploy.sh"
 
 stages:
 - deploy
@@ -16,51 +18,69 @@ image: google/cloud-sdk
 
 .kube-context:
   before_script:
+  - set -x
   - |
     if [ -n "$KUBE_CONTEXT" ]; then
         echo "Setting KUBE_CONTEXT to $KUBE_CONTEXT"
         kubectl config use-context "$KUBE_CONTEXT"
         kubectl config current-context
+        kubectl get pods -n "$NAMESPACE"
     fi
 
 # Depends on GITLAB_AUTH - File defined inside Project Settings->CI/CD
 # Generated using:
 # docker login -u <user_name> -p <gitlab_access_token> registry.gitlab.com
 # cat $HOME/.docker/config.json
-.prepare_cluster: &prepare_cluster
 # Create Secret if not existing to PullImages from GitLab
+.create_secret: &create_secret
 - |
-  if [ -n "$NAMESPACE" ]; then
-    kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"
+  if [ -n "$GITLAB_AUTH" ]; then
+    echo "Creating secret $SECRET in namespace $NAMESPACE required for private repository access"
     if kubectl get secrets --namespace=$NAMESPACE | grep $SECRET; then
       echo "$SECRET exists in namespace $NAMESPACE, skipping..."
     else
       kubectl create secret generic $SECRET --from-file=.dockerconfigjson=${GITLAB_AUTH} --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
+      kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
     fi
   fi
 
+.prepare_cluster: &prepare
+-  if [ -n "$NAMESPACE" ]; then kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"; fi
+- *create_secret
+- |
+  if [ -f ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT} ]; then
+    echo "Running pre-deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT}
+  else
+    echo "Skipping deploy step since ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT} does not exist"
+  fi
+
+
 .echo: &echo
-- echo CI_REGISTRY=$CI_REGISTRY
 - echo KUBE_CONTEXT=$KUBE_CONTEXT
 - echo ENVIRONMENT = $ENVIRONMENT
 - echo IMAGE = $IMAGE
 - echo NAMESPACE = $NAMESPACE
-- echo UPSTREAM_PROJECT_NAME = $UPSTREAM_PROJECT_NAME
-- echo UPSTREAM_PROJECT_PATH = $UPSTREAM_PROJECT
-- echo Patching image $IMAGE of application $UPSTREAM_PROJECT_NAME, using $ENVIRONMENT environment and $NAMESPACE namespace
-- echo CI_COMMIT_BRANCH = $CI_COMMIT_BRANCH
-- echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
-- echo CI_PIPELINE_SOURCE = $CI_PIPELINE_SOURCE
-- echo CI_PIPELINE_TRIGGERED = $CI_PIPELINE_TRIGGERED
-- echo PIPELINE_TRIGGERED = $PIPELINE_TRIGGERED
+- echo APPLICATION = $APPLICATION
+#- echo CI_COMMIT_BRANCH = $CI_COMMIT_BRANCH
+#- echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
+#- echo CI_PIPELINE_SOURCE = $CI_PIPELINE_SOURCE
+#- echo CI_PIPELINE_TRIGGERED = $CI_PIPELINE_TRIGGERED
+#- echo PIPELINE_TRIGGERED = $PIPELINE_TRIGGERED
 
 
-# Runs Pathcing based on the Application Build Image Trigger. Path to the Image, Namespace and Application are passed through the pipeline.
+# Runs Patching based on the Application Build Image Trigger. Path to the Image, Namespace and Application are passed through the pipeline.
 .cluster_patch: &cluster_patch
-- echo "Patching image $IMAGE of application $APPLICATION"
+- echo "Patching image $IMAGE of application $APPLICATION in environment $ENVIRONMENT with namespace $NAMESPACE"
 - if [ -n "$CI_COMMIT_BRANCH" ]; then echo source branch is  $CI_COMMIT_BRANCH; fi
 - if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered my merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
-- APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/deploy.sh
+- |
+  if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
+    echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
+  else
+    echo "Skipping deploy step since ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} does not exist"
+  fi
 - kubectl get pods -n "$NAMESPACE"
 
 # Pipeline was triggered - check the branch
@@ -72,7 +92,7 @@ patch:
   script:
   - APPLICATION=$UPSTREAM_PROJECT_NAME
   - *echo
-  - *prepare_cluster
+  - *prepare
   - *cluster_patch
   rules:
   - if: '$PIPELINE_TRIGGERED == null'
@@ -82,10 +102,7 @@ patch:
 
 .deploy_applications: &deploy_applications
 - *echo
-- *prepare_cluster
-- kubectl get pods -n "$NAMESPACE"
-- kubectl config view
-- kubectl config current-context
+- *prepare
 # Check if Container Image Exists, by setting IMAGE_EXISTS to 'true' or 'false'.
 # via https://gitlab.com/gitlab-org/gitlab-foss/issues/26866#note_97609397
 - mkdir -p ~/.docker
@@ -106,7 +123,13 @@ patch:
           if [ $IMAGE_EXISTS -eq '0' ]; then IMAGE=$IMAGE_RELEASED; fi
       fi
       echo $IMAGE, $IMAGE_EXISTS
-      APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/deploy.sh
+      echo "APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+      if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
+        echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT ..."
+        APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
+      else
+        echo "Skipping deploy step since ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} does not exist"
+      fi
   done
 - kubectl get pods -n "$NAMESPACE"
 
@@ -115,7 +138,6 @@ patch:
   stage: deploy
   extends: [.kube-context ]
   script:
-  - set -x
   - export ENVIRONMENT=$CI_ENVIRONMENT_NAME
   - echo CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME #for the feature, Application images are stored in the 'feature_name path
