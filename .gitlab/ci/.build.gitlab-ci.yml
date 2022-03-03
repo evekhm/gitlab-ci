@@ -5,7 +5,7 @@
 # REF: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-docker-in-docker-image-from-container-registry
 
 include:
-- local: .build-vars.gitlab-ci.yml
+- local: /.gitlab/ci/.build-vars.gitlab-ci.yml
 
 image: docker:${DOCKER_IMAGE_VERSION}
 
