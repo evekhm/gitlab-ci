@@ -5,7 +5,7 @@
 - [Overview](#overview)
 - [Setup](#setup)
   * [GitLab Projects](#gitlab-projects)
-  * [CI/CD Environments](#ci-cd-environments)
+  * [Environments](#environments)
 - [Architecture Diagrams](#architecture-diagrams)
 - [Build](#build)
   * [Image Tagging Logic](#image-tagging-logic)
@@ -23,14 +23,14 @@
 
 ## Overview
 
-The goal of this CI/CD infrastructure is to leverage Gitlab integration with GCP and allow single source of truth being Git repository to seamlessly work with configurable GCP deployments addressing the various personas needs.
+The goal of this CI/CD infrastructure is to leverage Gitlab integration with GCP and allow single source of truth being the Git repository to seamlessly work with configurable GCP deployments, addressing the various personas needs.
 The offered templates (modules) allow simplifying CI/CD while accounting for the complex micro-service architecture, when different services can be developed independently and kept in different projects. 
 
 
 Use Cases:
-1) As a *Customer Engineer*  I want to have an easy way to deploy Solution into my own GCP Project environment and use it to demo to a customer, while having full control over the GCP project.
-2) As a *Developer*, I want to be able to work on the feature which spans across multiple projects and have automated CI/CD to deploy images that either belong to the feature and were modified by me, or the released versions. 
-3) As a *QA engineer*, I want to be able to have MR related feature projects bee deployed into the test environment.
+1) As a *Customer Engineer*  I want to have an easy way to deploy Solution into my own GCP Project environment, while having full control over the GCP project.
+2) As a *Developer*, I want to be able to work on the feature which spans across multiple projects and have automated CI/CD to deploy images that either belong to the feature and were modified by me, or to select the released versions. 
+3) As a *QA engineer*, I want to be able to have Merge Requests of the  feature branches to be consistently deployed into the test environment.
 4) As a *Sales Person*, I want to have a stable demo environment for the customer presentations.
 5) ...
 
@@ -39,7 +39,7 @@ Currently, destroying of the deployments is a manual step which could be improve
 
 ## Setup
 ### GitLab Projects
-We will demonstrate the usage of the plug-in templates with the following example of GitLab Projects setup:
+We will demonstrate the usage of the plug-in templates with the following setup.
 
 **Services**: (different Projects, each has Container Registry enabled):
 - ApplicationA - service A
@@ -50,18 +50,21 @@ We will demonstrate the usage of the plug-in templates with the following exampl
 - DeployApplications -  GCP deployment project, containing GKE manifests yaml file for the applications.
 
 **Gitlab Templates**:
-- [This]() Project, offering templates for building and deploying applications into the different GCP environment, while following the lifecycle of the solution development. 
+- [This]() Project, offering templates for building and deploying applications into the different GCP environments, while following the lifecycle of the solution development. 
 
-### CI/CD Environments <a name="ci-cd-environments"></a>
-CI/CD covers Following Environments:
-- *development* environment(s) - personalized GCP environment(s), can be created/setup and used per developer.
-- *test* environment - pre-configured GCP environment used for testing before manually releasing application images or changes to the project setup or deployment flow.
-  The namespace separation (named after the feature branch) will be used during the deployment.
-- *demo* - running stable demo using released images and main branch for the CI/CD deployment.
+### Environments
+CI/CD covers following environments:
+- *demo* - shared environment used for the stable demo, running released images of the applications. 
+- *test* - shared environment used for testing merge requests  before accepting them.
+- *development* - could either be part of the shared environment (default) or could be configured, so that each developer has his/hers own GCP playground to work in.  
 
+The namespace separation is used during the deployment, allowing to host all deployments in the same cluster. 
+Different project/Cluster per environment could also be setup.
 ## Architecture Diagrams
 
-![](img/gcp-gitlab-cicd.png)
+![](img/gcp-gitlab-cicd2.png)
+
+![](img/templates.png)
 
 ![](img/feature-development.png)
 
