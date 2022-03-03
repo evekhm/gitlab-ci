@@ -309,6 +309,7 @@ Go to Services/Ingress, select service in the development-feature1 namespace, an
 ![](img/service.png)
 
 Here is our nginx deployment page:
+
 ![](img/hello-dev.png)
 
 #### Changes to Development Environment
