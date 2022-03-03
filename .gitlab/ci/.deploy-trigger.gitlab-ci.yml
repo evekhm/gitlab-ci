@@ -16,13 +16,14 @@ variables:
   #PROJECT_PATH: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME} # needs to be static otherwise it is the Project info from where it is being called
   TRIGGER_FILE: deploy-trigger.yml
 
-
 .generate_yaml: &generate_yaml
-- echo "generating trigger YAML"
+- echo "generating trigger YAML, DEPLOY_PROJECT=$DEPLOY_PROJECT, TRIGGER_BRANCH=$TRIGGER_BRANCH"
+- echo "stages:" > "${TRIGGER_FILE}"
+- echo "- deploy-image" >> "${TRIGGER_FILE}"
+- echo "deploy:" >> "${TRIGGER_FILE}"
 - >
-  printf "stages:\n
-  - deploy-image\n
-  deploy:\n
+  printf
+  "
     stage: deploy-image
     rules:
     - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
@@ -36,12 +37,13 @@ variables:
       PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
     trigger:
       project: %s
-      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} > "${TRIGGER_FILE}"
+      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} >> "${TRIGGER_FILE}"
 - cat "${TRIGGER_FILE}"
 
-
-
-.create_yaml: &create_yaml
+# Check if the branch with the same name as commit branch exists for the DEPLOY_PROJECT.
+# Otherwise, fall back to the main branch
+# set TRIGGER_BRANCH
+.get_trigger_branch: &get_trigger_branch
 - echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
 - cat ${VARIABLES_FILE}
 - source ${VARIABLES_FILE}
@@ -62,15 +64,15 @@ variables:
         TRIGGER_BRANCH=${CHECK_BRANCH}
     fi
   fi
-- echo TRIGGER_BRANCH=$TRIGGER_BRANCH
+- export TRIGGER_BRANCH=$TRIGGER_BRANCH
 - cd ..
-- *generate_yaml
-- cat ${TRIGGER_FILE}
+
 
 use-build-results:
   stage: vars
   script:
-    - *create_yaml
+  - *get_trigger_branch
+  - *generate_yaml
   artifacts:
     paths:
     - ${TRIGGER_FILE}
