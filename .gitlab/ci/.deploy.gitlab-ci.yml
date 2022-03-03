@@ -45,7 +45,7 @@ image: google/cloud-sdk
   fi
 
 .prepare_cluster: &prepare
--  if [ -n "$NAMESPACE" ]; then kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"; fi
+- if [ -n "$NAMESPACE" ]; then kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"; fi
 - *create_secret
 - |
   if [ -f ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT} ]; then
