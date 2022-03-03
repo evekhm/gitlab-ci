@@ -18,58 +18,59 @@ variables:
 
 
 generate_yaml: &generate_yaml
-  script:
-  - echo "generating trigger YAML"
-  - >
-    printf "stages:
-    - deploy-image
-    deploy:
-      stage: deploy-image
-      rules:
-      - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
-        when: always
-      variables:
-        IMAGE: %s
-        UPSTREAM_PROJECT_NAME: %s
-        UPSTREAM_PROJECT_PATH: %s
-        ENVIRONMENT: %s
-        NAMESPACE: %s
-        PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
-      trigger:
-        project: %s
-        branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} > "${TRIGGER_FILE}"
-  - cat "${TRIGGER_FILE}"
+- echo "generating trigger YAML"
+- >
+  printf "stages:
+  - deploy-image
+  deploy:
+    stage: deploy-image
+    rules:
+    - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
+      when: always
+    variables:
+      IMAGE: %s
+      UPSTREAM_PROJECT_NAME: %s
+      UPSTREAM_PROJECT_PATH: %s
+      ENVIRONMENT: %s
+      NAMESPACE: %s
+      PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
+    trigger:
+      project: %s
+      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} > "${TRIGGER_FILE}"
+- cat "${TRIGGER_FILE}"
 
 
 
 .create_yaml: &create_yaml
-  script:
-  - echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
-  - cat ${VARIABLES_FILE}
-  - source ${VARIABLES_FILE}
-  - echo IMAGE = ${IMAGE}  ENVIRONMENT=${ENVIRONMENT} NAMESPACE=${NAMESPACE}
-  - apk update
-  - apk add git
-  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
-  - cd $(basename ${DEPLOY_PROJECT})
-  - TRIGGER_BRANCH=`git remote show https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git | grep 'HEAD branch' | cut -d' ' -f5`
-  - if [[ -n "${CI_COMMIT_BRANCH}" ]]; then CHECK_BRANCH=${CI_COMMIT_BRANCH}; fi
-  - if [[ -n "${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}" ]]; then CHECK_BRANCH=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}; fi
-  - |
-    if [[ -n ${CHECK_BRANCH} ]]; then
-      echo CHECK_BRANCH=$CHECK_BRANCH
-      git ls-remote --heads origin ${CHECK_BRANCH}
-      branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH} | wc -l)
-      if [[ "$branch_exists_in_deploy" -eq 1 ]]; then
-          TRIGGER_BRANCH=${CHECK_BRANCH}
-      fi
+- echo CI_COMMIT_BRANCH = ${CI_COMMIT_BRANCH}, CI_MERGE_REQUEST_SOURCE_BRANCH_NAME = ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+- cat ${VARIABLES_FILE}
+- source ${VARIABLES_FILE}
+- echo IMAGE = ${IMAGE}  ENVIRONMENT=${ENVIRONMENT} NAMESPACE=${NAMESPACE}
+- apk update
+- apk add git
+- git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git "$(basename ${DEPLOY_PROJECT})"
+- cd $(basename ${DEPLOY_PROJECT})
+- TRIGGER_BRANCH=`git remote show https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${DEPLOY_PROJECT}.git | grep 'HEAD branch' | cut -d' ' -f5`
+- if [[ -n "${CI_COMMIT_BRANCH}" ]]; then CHECK_BRANCH=${CI_COMMIT_BRANCH}; fi
+- if [[ -n "${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}" ]]; then CHECK_BRANCH=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}; fi
+- |
+  if [[ -n ${CHECK_BRANCH} ]]; then
+    echo CHECK_BRANCH=$CHECK_BRANCH
+    git ls-remote --heads origin ${CHECK_BRANCH}
+    branch_exists_in_deploy=$(git ls-remote --heads origin ${CHECK_BRANCH} | wc -l)
+    if [[ "$branch_exists_in_deploy" -eq 1 ]]; then
+        TRIGGER_BRANCH=${CHECK_BRANCH}
     fi
-  - echo TRIGGER_BRANCH=$TRIGGER_BRANCH
-  - cd ..
-# Gitlab/YAML issue? Cannot use the line below, it will give following ERROR: jobs generate yaml config should implement a script: or a trigger: keyword
-  - *generate_yaml
+  fi
+- echo TRIGGER_BRANCH=$TRIGGER_BRANCH
+- cd ..
+- *generate_yaml
+## TODO Gitlab/YAML issue? Cannot use the line below, it will give following ERROR: jobs generate yaml config should implement a script: or a trigger: keyword
+# - *generate_yaml
+#
+# because the above does not work need to in-line the logic:
 
-
+# generate YAML
 #  - >
 #    printf "stages:
 #    - deploy-image
@@ -100,14 +101,16 @@ generate_yaml: &generate_yaml
 #          s|__NAMESPACE__|'"${NAMESPACE}"'|g;
 #    '
 #    $(basename ${PROJECT_PATH})/"${TRIGGER_FILE}" > ${TRIGGER_FILE}
-  artifacts:
-    paths:
-    - ${TRIGGER_FILE}
+
 
 
 use-build-results:
   stage: vars
-  <<: *create_yaml
+  script:
+    - *create_yaml
+  artifacts:
+    paths:
+    - ${TRIGGER_FILE}
 
 execute:
   stage: deploy
