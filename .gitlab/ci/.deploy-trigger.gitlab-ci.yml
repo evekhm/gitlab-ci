@@ -13,29 +13,30 @@ stages:
 - deploy
 
 variables:
-  PROJECT_PATH: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME} # needs to be static otherwise it is the Project info from where it is being called
+  #PROJECT_PATH: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME} # needs to be static otherwise it is the Project info from where it is being called
   TRIGGER_FILE: deploy-trigger.yml
 
 
-generate_yaml: &generate_yaml
-- >
-  printf "stages:
-  - deploy-image
-  deploy:
-    stage: deploy-image
-    rules:
-    - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
-      when: always
-    variables:
-      IMAGE: %s
-      UPSTREAM_PROJECT_NAME: %s
-      UPSTREAM_PROJECT_PATH: %s
-      ENVIRONMENT: %s
-      NAMESPACE: %s
-      PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
-    trigger:
-      project: %s
-      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH}> "${TRIGGER_FILE}"
+#generate_yaml: &generate_yaml
+#  script:
+#  - >
+#    printf "stages:
+#    - deploy-image
+#    deploy:
+#      stage: deploy-image
+#      rules:
+#      - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
+#        when: always
+#      variables:
+#        IMAGE: %s
+#        UPSTREAM_PROJECT_NAME: %s
+#        UPSTREAM_PROJECT_PATH: %s
+#        ENVIRONMENT: %s
+#        NAMESPACE: %s
+#        PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
+#      trigger:
+#        project: %s
+#        branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH}> "${TRIGGER_FILE}"
 
 
 
@@ -63,7 +64,24 @@ generate_yaml: &generate_yaml
     fi
   - echo TRIGGER_BRANCH=$TRIGGER_BRANCH
   - cd ..
-  - *generate_yaml
+  - >
+    printf "stages:
+    - deploy-image
+    deploy:
+      stage: deploy-image
+      rules:
+      - if: "'$CI_MERGE_REQUEST_ID || $CI_COMMIT_TAG || $CI_COMMIT_BRANCH'"
+        when: always
+      variables:
+        IMAGE: %s
+        UPSTREAM_PROJECT_NAME: %s
+        UPSTREAM_PROJECT_PATH: %s
+        ENVIRONMENT: %s
+        NAMESPACE: %s
+        PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
+      trigger:
+        project: %s
+        branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  $ENVIRONMENT $NAMESPACE ${DEPLOY_PROJECT} ${TRIGGER_BRANCH}> "${TRIGGER_FILE}"
   - ls
 #  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${PROJECT_PATH}.git "${CI_PROJECT_NAME}"
 #  - >
