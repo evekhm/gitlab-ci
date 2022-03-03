@@ -13,7 +13,7 @@ stages:
 - deploy
 
 variables:
-  PROJECT_PATH: ${CI_PROJECT_NAMESPACE}
+  PROJECT_PATH: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
   TRIGGER_FILE: .gitlab/ci/deploy-template.yml
 
 
