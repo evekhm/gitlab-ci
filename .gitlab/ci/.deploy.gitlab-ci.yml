@@ -27,22 +27,23 @@ image: google/cloud-sdk
         kubectl get pods -n "$NAMESPACE"
     fi
 
-# Depends on GITLAB_AUTH - File defined inside Project Settings->CI/CD
-# Generated using:
-# docker login -u <user_name> -p <gitlab_access_token> registry.gitlab.com
-# cat $HOME/.docker/config.json
-# Create Secret if not existing to PullImages from GitLab
+# GIT LAB TOKENS:
+# https://docs.gitlab.com/ee/user/project/deploy_tokens/index.html#gitlab-deploy-token
+# https://docs.gitlab.com/ee/user/project/deploy_tokens/
+# For Group deploy token, following needs to be setup manually for the DeployApplication projects
+# $CI_DEPLOY_USER,  $CI_DEPLOY_PASSWORD
+#
 .create_secret: &create_secret
 - |
-  if [ -n "$GITLAB_AUTH" ]; then
-    echo "Creating secret $SECRET in namespace $NAMESPACE required for private repository access"
-    if kubectl get secrets --namespace=$NAMESPACE | grep $SECRET; then
-      echo "$SECRET exists in namespace $NAMESPACE, skipping..."
-    else
-      kubectl create secret generic $SECRET --from-file=.dockerconfigjson=${GITLAB_AUTH} --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
-      kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
-    fi
+  echo "Creating secret $SECRET in namespace $NAMESPACE required for private repository access"
+  if kubectl get secrets --namespace=$NAMESPACE | grep $SECRET; then
+    echo "$SECRET exists in namespace $NAMESPACE, skipping..."
+  else
+    docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
+    kubectl create secret generic $SECRET --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
+    kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
   fi
+
 
 .prepare_cluster: &prepare
 - if [ -n "$NAMESPACE" ]; then kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"; fi
