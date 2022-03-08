@@ -40,8 +40,6 @@ image: google/cloud-sdk
   else
     echo "Logging into $CI_REGISTRY with deploy token $CI_DEPLOY_USER"
     docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
-    ls $HOME/.docker/config.json
-    cat $HOME/.docker/config.json
     kubectl create secret generic $SECRET --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
     kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
   fi
