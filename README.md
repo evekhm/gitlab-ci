@@ -380,3 +380,34 @@ deploy_dev:
   - if: '$KUBE_CONTEXT == null'
     when: never
 ```
+
+
+Also, following is NOT possible with Gitlab:
+
+DeployApplications: ci file
+```shell
+GITLAB_AGENT: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/gitlab-gke:gitlab-agent-priorauth"
+KUBE_CONTEXT_DEMO: $GITLAB_AGENT
+KUBE_CONTEXT_TEST: $GITLAB_AGENT
+KUBE_CONTEXT_DEV: $GITLAB_AGENT
+```
+Instead, you have to use the Static string, though it makes code less readable and harder to maintain: 
+
+Instead 
+```shell
+KUBE_CONTEXT_DEMO: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/gitlab-gke:gitlab-agent-priorauth"
+KUBE_CONTEXT_TEST: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/gitlab-gke:gitlab-agent-priorauth"
+KUBE_CONTEXT_DEV: "gcp-solutions/hcls/claims-modernization/gitlab-test-examples/gitlab-gke:gitlab-agent-priorauth"
+```
+
+Reason:
+For unknown reason, GitLab would not sunstitute the variable, and apss it as $GITLAB_AGENT instead, see below:
+
+```shell
+$ if [ -n "$KUBE_CONTEXT" ]; then # collapsed multi-line command
+++ '[' -n '$GITLAB_AGENT' ']'
+++ echo 'Setting KUBE_CONTEXT to $GITLAB_AGENT'
+Setting KUBE_CONTEXT to $GITLAB_AGENT
+++ kubectl config use-context '$GITLAB_AGENT'
+error: no context exists with the name: "$GITLAB_AGENT"
+```
