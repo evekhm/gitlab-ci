@@ -43,7 +43,7 @@ variables:
       docker push ${IMAGE_LATEST}
     else
       echo "No Image to be built"
-      IMAGE="null"
+      IMAGE="NONE"
     fi
   - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
