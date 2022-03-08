@@ -148,6 +148,10 @@ patch:
   - export REPO_SUB=${CI_COMMIT_BRANCH:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/
   - echo REPO_SUB=$REPO_SUB
   - *deploy_applications
+  artifacts:
+    paths:
+    - ${CI_PROJECT_DIR}/applications/*/*.yaml
+    expire_in: 10 day
 
 deploy_main:
   environment: demo
@@ -169,6 +173,7 @@ deploy_mr:
   - !reference [.build_vars, rules]
   extends: [.deploy ]
 
+
 deploy_dev:
   environment: development
   rules:
@@ -180,7 +185,3 @@ deploy_dev:
     when: never
   - !reference [.build_vars, rules]
   extends: [.deploy ]
-  artifacts:
-    paths:
-    - ${CI_PROJECT_DIR}/applications/*/*.yaml
-    expire_in: 10 day
