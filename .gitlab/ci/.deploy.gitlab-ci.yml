@@ -180,3 +180,7 @@ deploy_dev:
     when: never
   - !reference [.build_vars, rules]
   extends: [.deploy ]
+  artifacts:
+    paths:
+    - ${CI_PROJECT_DIR}/applications/*/*.yaml
+    expire_in: 10 day
