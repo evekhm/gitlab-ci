@@ -32,18 +32,20 @@ variables:
   - echo CI_MERGE_REQUEST_DIFF_BASE_SHA = $CI_MERGE_REQUEST_DIFF_BASE_SHA
   - echo CI_DEFAULT_BRANCH = $CI_DEFAULT_BRANCH
   - echo CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID
-  - touch "${VARIABLES_FILE}"
   - |
     if [ -f Dockerfile ]; then
-      export IMAGE=${IMAGE_REPO}:${IMAGE_TAG}
-      export IMAGE_LATEST=${IMAGE_REPO}:latest
+      IMAGE=${IMAGE_REPO}:${IMAGE_TAG}
+      IMAGE_LATEST=${IMAGE_REPO}:latest
       echo "Building IMAGE=[$IMAGE_REPO] with tag [$IMAGE_TAG]"
       echo IMAGE_LATEST=$IMAGE_LATEST
       docker build --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
       docker push ${IMAGE}
       docker push ${IMAGE_LATEST}
-      echo export IMAGE=${IMAGE} >> "${VARIABLES_FILE}"
+    else
+      echo "No Image to be built"
+      IMAGE="null"
     fi
+  - echo export IMAGE=${IMAGE} > "${VARIABLES_FILE}"
   - echo export ENVIRONMENT=$ENVIRONMENT >> "${VARIABLES_FILE}"
   - echo export NAMESPACE=$NAMESPACE >> "${VARIABLES_FILE}"
   - cat "${VARIABLES_FILE}"
