@@ -151,6 +151,7 @@ patch:
   artifacts:
     paths:
     - ${CI_PROJECT_DIR}/applications/*/*.yaml
+    - ${CI_PROJECT_DIR}/applications/*/*/*.yaml
     expire_in: 10 day
 
 deploy_main:
