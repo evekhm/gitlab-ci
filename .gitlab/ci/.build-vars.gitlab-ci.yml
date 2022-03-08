@@ -22,6 +22,7 @@ variables:
       NAMESPACE: $DEMO_ENV_NAME # main branches can be named differently, so using unique namespace 'demo' instead
       ENVIRONMENT: $DEMO_ENV_NAME
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
+      PROJECT_ID: $PROJECT_ID_DEMO
 
   # TEST Deployment on Merge Request
   - if: $CI_MERGE_REQUEST_ID
@@ -32,6 +33,8 @@ variables:
       ENVIRONMENT: $TEST_ENV_NAME
       NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_TEST
+      PROJECT_ID: $PROJECT_ID_TEST
+      SERVICE_ACCOUNT_FILE: $SERVICE_ACCOUNT_FILE_TEST
 
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -42,3 +45,4 @@ variables:
       ENVIRONMENT: $DEV_ENV_NAME
       NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEV
+      PROJECT_ID: $PROJECT_ID_DEV
