@@ -38,7 +38,10 @@ image: google/cloud-sdk
   if kubectl get secrets --namespace=$NAMESPACE | grep $SECRET; then
     echo "$SECRET exists in namespace $NAMESPACE, skipping..."
   else
+    echo "Logging into $CI_REGISTRY with deploy token $CI_DEPLOY_USER"
     docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
+    ls $HOME/.docker/config.json
+    cat $HOME/.docker/config.json
     kubectl create secret generic $SECRET --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
     kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
   fi
@@ -65,13 +68,12 @@ image: google/cloud-sdk
 - echo APPLICATION = $APPLICATION
 - echo UPSTREAM_PROJECT_PATH = $UPSTREAM_PROJECT_PATH
 - echo UPSTREAM_PROJECT_NAME = $UPSTREAM_PROJECT_NAME
-
-#- echo CI_COMMIT_BRANCH = $CI_COMMIT_BRANCH
-#- echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
-#- echo CI_PIPELINE_SOURCE = $CI_PIPELINE_SOURCE
-#- echo CI_PIPELINE_TRIGGERED = $CI_PIPELINE_TRIGGERED
-#- echo PIPELINE_TRIGGERED = $PIPELINE_TRIGGERED
-
+- echo CI_COMMIT_BRANCH = $CI_COMMIT_BRANCH
+- echo CI_DEFAULT_BRANCH = $CI_DEFAULT_BRANCH
+- echo CI_MERGE_REQUEST_SOURCE_BRANCH_SHA = $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
+- echo CI_PIPELINE_SOURCE = $CI_PIPELINE_SOURCE
+- echo CI_PIPELINE_TRIGGERED = $CI_PIPELINE_TRIGGERED
+- echo PIPELINE_TRIGGERED = $PIPELINE_TRIGGERED
 
 # Runs Patching based on the Application Build Image Trigger. Path to the Image, Namespace and Application are passed through the pipeline.
 .cluster_patch: &cluster_patch
