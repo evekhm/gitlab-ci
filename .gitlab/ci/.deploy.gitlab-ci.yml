@@ -27,12 +27,11 @@ image: google/cloud-sdk
         kubectl get pods -n "$NAMESPACE"
     fi
 
-# GIT LAB TOKENS:
+# Using Gitlab deploy token to access Private Repository:
 # https://docs.gitlab.com/ee/user/project/deploy_tokens/index.html#gitlab-deploy-token
 # https://docs.gitlab.com/ee/user/project/deploy_tokens/
-# For Group deploy token, following needs to be setup manually for the DeployApplication projects
-# $CI_DEPLOY_USER,  $CI_DEPLOY_PASSWORD
-#
+# When using Group deploy token, following needs to be added manually for the DeployApplication projects:  $CI_DEPLOY_USER,  $CI_DEPLOY_PASSWORD
+# See https://docs.gitlab.com/ee/user/project/deploy_tokens/index.html#group-deploy-token
 .create_secret: &create_secret
 - |
   echo "Creating secret $SECRET in namespace $NAMESPACE required for private repository access"

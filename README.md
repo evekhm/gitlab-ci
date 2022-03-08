@@ -211,22 +211,28 @@ You will need following components:
   * Project for configuring  GitLab Agent and connecting to GCP Project
     * Instructions to Install GitLab Agent [here](https://docs.gitlab.com/ee/user/clusters/agent/install/index.html).
   * **gitlab-ci**: Project with [this gitlab-ci](https://github.com/evekhm/gitlab-ci.git) repository forked.
-  * **ApplicationA**: Project with a forked source from this sample [nginx application](https://github.com/evekhm/applicationa.git).
+  * **app-nginx**: Project with a forked source from this sample [nginx application](https://github.com/evekhm/app-nginx.git).
+    * Local Changes:
+      * DEPLOY_PROJECT should point to the path of the GitLab  DeployApplications Project (created in the next step)
+      * include project (Line 5 and Line 7) should point to the path of the gitlab-ci project (created in the previous step).
+  * **app-cloudstorage**: Project with a forked source from this sample [nginx application](https://github.com/evekhm/app-cloudstorage.git).
     * Local Changes:
       * DEPLOY_PROJECT should point to the path of the GitLab  DeployApplications Project (created in the next step)
       * include project (Line 5 and Line 7) should point to the path of the gitlab-ci project (created in the previous step).
   * **DeployApplications**: Project with a forked source from this sample [DeployApplications](https://github.com/evekhm/DeployApplications.git).
     * Local Changes:
       * include project (Line 2) should point to the path of the gitlab-ci project.
-      * APPLICATION_NAMESPACE (Line 9) should point to the path of the ApplicationA (see below)
+      * APPLICATION_NAMESPACE (Line 9) should point to the namespace path of the app-nginx and app-cloustorage (assumption - they should be in the same project group hierarchy)
       * GITLAB_AGENT (Line 12)  should point to the GitLab Agent path installed earlier.
-    * When using Private Repositories, you will need to Add GITLAB_AUTH variable of File type to CI/CD Settings. This File is used to create `regcred ` secret to access image.
-      * Generate  GitLab Token followings steps here with 'read registry' scope. 
-      * Use generated token to get an auth file (for example, in the Terminal of the GCP Project):
-      ```shell
-        docker login -u <user_name> -p <gitlab_token> registry.gitlab.com
-        cat $HOME/.docker/config.json
-      ```
+      * PROJECT_ID - should point to the GCP Project ID
+    * When using Private Repositories, you will need to setup [GitLab Deploy Token](https://docs.gitlab.com/ee/user/project/deploy_tokens/)
+      * This token is used to create a secret named `regcred` on GKE to allow access for pulling images from the container registry on GitLab. 
+      * [GitLap Group Deploy Token](https://docs.gitlab.com/ee/user/project/deploy_tokens/index.html#group-deploy-token) Setup:
+        * On a Group level, so that all of the required projects are covered,  go to Project->Settings->Repository->Deploy Token, and select required scopes - `read_repository`, `read_registry`
+        * Give token a name: `gitlab-deploy-token`.
+        * Go to you manifest Project (DeployApplications) and manually add following variables using the created token:
+          * CI_DEPLOY_USER=username and 
+          * CI_DEPLOY_PASSWORD=password
       * To instruct GKE to use secret when Pulling Images from GitLab repository, following lines to be added to the deployment yaml file:
 
      ```shell
