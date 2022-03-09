@@ -142,6 +142,10 @@ patch:
   script:
   - *echo
   - *prepare
+  artifacts:
+    paths:
+    - "${VARIABLES_FILE}" # To be able to pass data from prepare to deploy and other later stages
+    expire_in: 10 day
 
 .deploy:
   stage: deploy
