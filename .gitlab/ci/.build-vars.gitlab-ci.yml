@@ -4,7 +4,7 @@ variables:
   TEST_ENV_NAME: 'test'
   DEMO_ENV_NAME: 'demo'
 
-  VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env  # "." is required for image that have sh not bash
+  VARIABLES_FILE: ${CI_PROJECT_DIR}/variables.env
 
   #Post-fix for the repository path of the built container images per environment
   QA: "qa"
