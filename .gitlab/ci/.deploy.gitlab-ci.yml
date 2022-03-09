@@ -8,9 +8,10 @@ include:
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE
   DEPLOY_SCRIPT: "deploy.sh"
-  PRE_DEPLOY_SCRIPT: "pre-deploy.sh"
+  PRE_DEPLOY_SCRIPT: "prepare.sh"
 
 stages:
+- prepare
 - deploy
 - destroy
 
@@ -105,8 +106,6 @@ patch:
 
 
 .deploy_applications: &deploy_applications
-- *echo
-- *prepare
 # Check if Container Image Exists, by setting IMAGE_EXISTS to 'true' or 'false'.
 # via https://gitlab.com/gitlab-org/gitlab-foss/issues/26866#note_97609397
 - mkdir -p ~/.docker
@@ -137,6 +136,12 @@ patch:
   done
 - kubectl get pods -n "$NAMESPACE"
 
+.prepare:
+  stage: prepare
+  extends: [.kube-context ]
+  script:
+  - *echo
+  - *prepare
 
 .deploy:
   stage: deploy
@@ -154,35 +159,67 @@ patch:
     - ${CI_PROJECT_DIR}/applications/*/*/*.yaml
     expire_in: 10 day
 
-deploy_main:
-  environment: demo
+.demo_rules:
   rules:
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" #exclude when commit NOT to a main branch
     when: never
+
+deploy_main:
+  environment: demo
+  rules:
+  - !reference [.demo_rules, rules]
   - !reference [.build_vars, rules]
   extends: [.deploy ]
 
-deploy_mr:
-  environment: test
+prepare_main:
+  environment: demo
+  rules:
+  - !reference [.demo_rules, rules]
+  - !reference [.build_vars, rules]
+  extends: [.prepare ]
+
+.mr_rules:
   rules:
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH #exclude when NOT a MR or MR not to the main branch
     when: never
+
+deploy_mr:
+  environment: test
+  rules:
+  - !reference [.mr_rules, rules]
   - !reference [.build_vars, rules]
   extends: [.deploy ]
 
-
-deploy_dev:
-  environment: development
+prepare_mr:
+  environment: test
   rules:
-#  - if: '$KUBE_CONTEXT == null' - THIS does not work, limitation of Gitlab rules
-#    when: never
+  - !reference [.mr_rules, rules]
+  - !reference [.build_vars, rules]
+  extends: [.prepare ]
+
+.dev_rules:
+  rules:
+  #  - if: '$KUBE_CONTEXT == null' - THIS does not work, limitation of Gitlab rules
+  #    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH #exclude MR and demo
     when: never
+
+deploy_dev:
+  environment: development
+  rules:
+  - !reference [.dev_rules, rules]
   - !reference [.build_vars, rules]
   extends: [.deploy ]
+
+prepare_dev:
+  environment: development
+  rules:
+  - !reference [.dev_rules, rules]
+  - !reference [.build_vars, rules]
+  extends: [.prepare ]
