@@ -8,7 +8,7 @@ include:
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE
   DEPLOY_SCRIPT: "deploy.sh"
-  PRE_DEPLOY_SCRIPT: "prepare.sh"
+  PRE_DEPLOY_SCRIPT: "pre-deploy.sh"
 
 stages:
 - deploy
