@@ -35,6 +35,8 @@ variables:
   - |
     if [ -z DOCKER_FILE ]; then
       DOCKER_FILE=Dockerfile
+    else
+      echo "Using custom Docker file: $DOCKER_FILE"
     fi
   - |
     if [ -f $DOCKER_FILE ]; then
