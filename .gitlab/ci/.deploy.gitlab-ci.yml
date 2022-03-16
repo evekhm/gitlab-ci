@@ -7,8 +7,8 @@ include:
 
 variables:
   SECRET: regcred # used for the secret to access Images stored in Gitlab from the GKE
-  DEPLOY_SCRIPT: "deploy.sh"
-  PRE_DEPLOY_SCRIPT: "prepare.sh"
+  DEPLOY_SCRIPT: "gitlab-ci/deploy.sh"
+  PRE_DEPLOY_SCRIPT: "gitlab-ci/prepare.sh"
 
 stages:
 - prepare
@@ -25,7 +25,7 @@ image: google/cloud-sdk
         echo "Setting KUBE_CONTEXT to $KUBE_CONTEXT"
         kubectl config use-context "$KUBE_CONTEXT"
         kubectl config current-context
-        kubectl get pods -n "$NAMESPACE"
+        kubectl get pods -n "$KUBE_NAMESPACE"
     fi
 
 # Using Gitlab deploy token to access Private Repository:
@@ -35,24 +35,25 @@ image: google/cloud-sdk
 # See https://docs.gitlab.com/ee/user/project/deploy_tokens/index.html#group-deploy-token
 .create_secret: &create_secret
 - |
-  echo "Creating secret $SECRET in namespace $NAMESPACE required for private repository access"
-  if kubectl get secrets --namespace=$NAMESPACE | grep $SECRET; then
-    echo "$SECRET exists in namespace $NAMESPACE, skipping..."
+  echo "Creating secret $SECRET in namespace $KUBE_NAMESPACE required for private repository access"
+  if kubectl get secrets --namespace=$KUBE_NAMESPACE | grep $SECRET; then
+    echo "$SECRET exists in namespace $KUBE_NAMESPACE, skipping..."
   else
     echo "Logging into $CI_REGISTRY with deploy token $CI_DEPLOY_USER"
     docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
-    kubectl create secret generic $SECRET --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=$NAMESPACE
-    kubectl get secrets --namespace=$NAMESPACE | grep $SECRET
+    kubectl create secret generic $SECRET --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=$KUBE_NAMESPACE
+    kubectl get secrets --namespace=$KUBE_NAMESPACE | grep $SECRET
   fi
 
 
+
 .prepare_cluster: &prepare
-- if [ -n "$NAMESPACE" ]; then kubectl get namespace "$NAMESPACE" 2>/dev/null || kubectl create namespace "$NAMESPACE"; fi
+- if [ -n "$KUBE_NAMESPACE" ]; then kubectl get namespace "$KUBE_NAMESPACE" 2>/dev/null || kubectl create namespace "$KUBE_NAMESPACE"; fi
 - *create_secret
 - |
   if [ -f ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT} ]; then
-    echo "Running pre-deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
-    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT}
+    echo "Running pre-deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT}
   else
     echo "Skipping deploy step since ${CI_PROJECT_DIR}/${PRE_DEPLOY_SCRIPT} does not exist"
   fi
@@ -63,7 +64,7 @@ image: google/cloud-sdk
 - echo ENVIRONMENT = $ENVIRONMENT
 - echo IMAGE = $IMAGE
 - echo PROJECT_ID = $PROJECT_ID
-- echo NAMESPACE = $NAMESPACE
+- echo KUBE_NAMESPACE = $KUBE_NAMESPACE
 - echo APPLICATION = $APPLICATION
 - echo UPSTREAM_PROJECT_PATH = $UPSTREAM_PROJECT_PATH
 - echo UPSTREAM_PROJECT_NAME = $UPSTREAM_PROJECT_NAME
@@ -76,17 +77,17 @@ image: google/cloud-sdk
 
 # Runs Patching based on the Application Build Image Trigger. Path to the Image, Namespace and Application are passed through the pipeline.
 .cluster_patch: &cluster_patch
-- echo "Patching image $IMAGE of application $APPLICATION in environment $ENVIRONMENT with namespace $NAMESPACE"
+- echo "Patching image $IMAGE of application $APPLICATION in environment $ENVIRONMENT with namespace $KUBE_NAMESPACE"
 - if [ -n "$CI_COMMIT_BRANCH" ]; then echo source branch is  $CI_COMMIT_BRANCH; fi
 - if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered my merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
 - |
   if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
-    echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
-    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
+    echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+    APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
   else
     echo "Skipping deploy step since ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} does not exist"
   fi
-- kubectl get pods -n "$NAMESPACE"
+- kubectl get pods -n "$KUBE_NAMESPACE"
 
 # Pipeline was triggered - check the branch
 patch:
@@ -126,15 +127,15 @@ patch:
           if [ $IMAGE_EXISTS -eq '0' ]; then IMAGE=$IMAGE_RELEASED; fi
       fi
       echo $IMAGE, $IMAGE_EXISTS
-      echo "APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+      echo "APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"
       if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
-        echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT ..."
-        APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
+        echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT ..."
+        APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
       else
         echo "Skipping deploy step since ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} does not exist"
       fi
   done
-- kubectl get pods -n "$NAMESPACE"
+- kubectl get pods -n "$KUBE_NAMESPACE"
 
 .prepare:
   stage: prepare

@@ -19,7 +19,7 @@ variables:
       IMAGE_TYPE: $RELEASED
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE} #<path_to_repo>/released
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-      NAMESPACE: $DEMO_ENV_NAME # main branches can be named differently, so using unique namespace 'demo' instead
+      KUBE_NAMESPACE: $DEMO_ENV_NAME # main branches can be named differently, so using unique namespace 'demo' instead
       ENVIRONMENT: $DEMO_ENV_NAME
       KUBE_CONTEXT: $KUBE_CONTEXT_DEMO
       PROJECT_ID: $PROJECT_ID_DEMO
@@ -31,10 +31,9 @@ variables:
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE  #<path_to_repo>/<feature_name>/mr
       IMAGE_TAG: $CI_MERGE_REQUEST_ID
       ENVIRONMENT: $TEST_ENV_NAME
-      NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+      KUBE_NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
       KUBE_CONTEXT: $KUBE_CONTEXT_TEST
       PROJECT_ID: $PROJECT_ID_TEST
-      SERVICE_ACCOUNT_FILE: $SERVICE_ACCOUNT_FILE_TEST
 
   # DEVELOPMENT Deployment on commit to the feature branch
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
@@ -43,6 +42,6 @@ variables:
       IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       ENVIRONMENT: $DEV_ENV_NAME
-      NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
+      KUBE_NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}
       KUBE_CONTEXT: $KUBE_CONTEXT_DEV
       PROJECT_ID: $PROJECT_ID_DEV

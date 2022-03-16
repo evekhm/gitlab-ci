@@ -101,10 +101,10 @@ stages:
 ## Deploy
 
 ### Triggered from Upstream
-When deployment is triggered from the Upstream project, *gitlab-ci deploy Job* will call the  deploy.sh script from Manifest Project and pass required parameters:
+When deployment is triggered from the Upstream project, *gitlab-ci deploy Job* will call the  gitlab-ci/deploy.sh script from Manifest Project and pass required parameters:
 
 ```shell
-APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/deploy.sh
+APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/gitlab-ci/deploy.sh
 ```
 
 ### Triggered from Pipeline
