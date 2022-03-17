@@ -166,10 +166,6 @@ patch:
 
 .demo_rules:
   rules:
-  - changes:
-    - "*.md"
-    - ".gitignore"
-    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" #exclude when commit NOT to a main branch
@@ -191,10 +187,6 @@ prepare_main:
 
 .mr_rules:
   rules:
-  - changes:
-    - "*.md"
-    - ".gitignore"
-    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
   - if: $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH #exclude when NOT a MR or MR not to the main branch
@@ -216,10 +208,6 @@ prepare_mr:
 
 .dev_rules:
   rules:
-  - changes:
-    - "*.md"
-    - ".gitignore"
-    when: never
   #  - if: '$KUBE_CONTEXT == null' - THIS does not work, limitation of Gitlab rules
   #    when: never
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
