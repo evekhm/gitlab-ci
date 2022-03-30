@@ -44,7 +44,7 @@ variables:
       IMAGE_LATEST=${IMAGE_REPO}:latest
       echo "Building IMAGE=[$IMAGE_REPO] with tag [$IMAGE_TAG]"
       echo IMAGE_LATEST=$IMAGE_LATEST
-      docker build -f $DOCKER_FILE --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
+      docker build -f $DOCKER_FILE -t ${IMAGE} -t ${IMAGE_LATEST} .
       docker push ${IMAGE}
       docker push ${IMAGE_LATEST}
     else
