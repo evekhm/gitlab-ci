@@ -27,14 +27,21 @@ The goal of this CI/CD infrastructure is to leverage Gitlab integration with GCP
 The offered templates (modules) allow simplifying CI/CD while accounting for the complex micro-service architecture, when different services can be developed independently and kept in different projects. 
 
 
-Use Cases:
+**Use Cases**:
 1) As a *Customer Engineer*  I want to have an easy way to deploy Solution into my own GCP Project environment, while having full control over the GCP project.
-2) As a *Developer*, I want to be able to work on the feature which spans across multiple projects and have automated CI/CD to deploy images that either belong to the feature and were modified by me, or to select the released versions. 
+2) As a *Developer*, I want to be able to work on the feature which spans across multiple projects and have automated CI/CD to deploy images that either belong to the feature and were modified by me, or refer to the released versions.  
 3) As a *QA engineer*, I want to be able to have Merge Requests of the  feature branches to be consistently deployed into the test environment.
 4) As an *FSR*, I want to have a stable demo environment for the customer presentations.
-5) ...
 
+**Following templates are available**:
+- on Application side:
+  * [build](.gitlab/.build.gitlab-ci.yml) template - for building the application image and translating pipeline context (branch, event trigger, etc) into the Build (image tag, container registry) and Deployment (application namespace, environment, GCP project) settings
+  * [deploy-trigger](.gitlab/.deploy-trigger.gitlab-ci.yml) template - for passing build result to the Downstream Deployment project, containing manifests for the Kubernetes deployment in GCP. 
 
+- on Deployment side:
+  * [deploy](.gitlab/.deploy.gitlab-ci.yml) template - to handle the received pipeline events for the deployment/patching step. 
+
+![](img/build-deploy.png)
 ## Setup
 ### GitLab Projects
 We will demonstrate the usage of the plug-in templates with the following setup.
@@ -59,7 +66,6 @@ CI/CD covers following environments:
 The namespace separation is used during the deployment, allowing to host all deployments in the same cluster. 
 Different project/Cluster per environment could also be setup.
 ## Architecture Diagrams
-
 ![](img/gcp-gitlab-cicd2.png)
 
 ![](img/templates.png)
