@@ -33,7 +33,7 @@ variables:
   - echo CI_DEFAULT_BRANCH = $CI_DEFAULT_BRANCH
   - echo CI_MERGE_REQUEST_ID = $CI_MERGE_REQUEST_ID
   - |
-    if [ -z DOCKER_FILE ]; then
+    if [ -z "$DOCKER_FILE" ]; then
       DOCKER_FILE=Dockerfile
     else
       echo "Using custom Docker file: $DOCKER_FILE"
@@ -42,9 +42,9 @@ variables:
     if [ -f $DOCKER_FILE ]; then
       IMAGE=${IMAGE_REPO}:${IMAGE_TAG}
       IMAGE_LATEST=${IMAGE_REPO}:latest
-      echo "Building IMAGE=[$IMAGE_REPO] with tag [$IMAGE_TAG]"
+      echo "Building IMAGE=[$IMAGE_REPO] with tag [$IMAGE_TAG] using ${DOCKER_FILE}"
       echo IMAGE_LATEST=$IMAGE_LATEST
-      docker build -f $DOCKER_FILE -t ${IMAGE} -t ${IMAGE_LATEST} .
+      docker build -f ${DOCKER_FILE} --pull -t ${IMAGE} -t ${IMAGE_LATEST} .
       docker push ${IMAGE}
       docker push ${IMAGE_LATEST}
     else
