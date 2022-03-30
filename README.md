@@ -31,11 +31,9 @@ Use Cases:
 1) As a *Customer Engineer*  I want to have an easy way to deploy Solution into my own GCP Project environment, while having full control over the GCP project.
 2) As a *Developer*, I want to be able to work on the feature which spans across multiple projects and have automated CI/CD to deploy images that either belong to the feature and were modified by me, or to select the released versions. 
 3) As a *QA engineer*, I want to be able to have Merge Requests of the  feature branches to be consistently deployed into the test environment.
-4) As a *Sales Person*, I want to have a stable demo environment for the customer presentations.
+4) As an *FSR*, I want to have a stable demo environment for the customer presentations.
 5) ...
 
-## Next Steps
-Currently, destroying of the deployments is a manual step which could be improved.
 
 ## Setup
 ### GitLab Projects
