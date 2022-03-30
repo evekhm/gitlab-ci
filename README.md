@@ -1,4 +1,4 @@
-# GitLab CI Modules
+# GitLab CI Centralized Build/Deploy templates
 
 
 ## Table of Contents
