@@ -42,15 +42,15 @@ Currently, destroying of the deployments is a manual step which could be improve
 We will demonstrate the usage of the plug-in templates with the following setup.
 
 **Services**: (different Projects, each has Container Registry enabled):
-- ApplicationA - service A
+- [nginx-app](https://gitlab.com/gcp-solutions/hcls/claims-modernization/gitlab-test-examples/app-nginx) - service A
 - ApplicationB - service B
 - ApplicationC - service C
 
 **Manifest Project**:
-- DeployApplications -  GCP deployment project, containing GKE manifests yaml file for the applications.
+- [DeployApplications](https://gitlab.com/gcp-solutions/hcls/claims-modernization/gitlab-test-examples/deployapplications) -  GCP deployment project, containing GKE manifests yaml file for the applications.
 
 **Gitlab Templates**:
-- [This]() Project, offering templates for building and deploying applications into the different GCP environments, while following the lifecycle of the solution development. 
+- [This](https://gitlab.com/gcp-solutions/hcls/claims-modernization/gitlab-ci) Project, offering templates for building and deploying applications into the different GCP environments, while following the lifecycle of the solution development. 
 
 ### Environments
 CI/CD covers following environments:
