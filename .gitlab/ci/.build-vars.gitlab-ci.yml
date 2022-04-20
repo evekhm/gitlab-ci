@@ -17,7 +17,8 @@ variables:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
       IMAGE_TYPE: $RELEASED
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${IMAGE_TYPE} #<path_to_repo>/released
+      REPO_SUB: ""
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${REPO_SUB}${IMAGE_TYPE} #<path_to_repo>/released
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       KUBE_NAMESPACE: $DEMO_ENV_NAME # main branches can be named differently, so using unique namespace 'demo' instead
       ENVIRONMENT: $DEMO_ENV_NAME
@@ -28,7 +29,8 @@ variables:
   - if: $CI_MERGE_REQUEST_ID
     variables:
       IMAGE_TYPE: $MR
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/$IMAGE_TYPE  #<path_to_repo>/<feature_name>/mr
+      REPO_SUB: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${REPO_SUB}${IMAGE_TYPE}  #<path_to_repo>/<feature_name>/mr
       IMAGE_TAG: $CI_MERGE_REQUEST_ID
       ENVIRONMENT: $TEST_ENV_NAME
       KUBE_NAMESPACE: ${TEST_ENV_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
@@ -39,7 +41,8 @@ variables:
   - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
     variables:
       IMAGE_TYPE: $QA
-      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}/$IMAGE_TYPE    #<path_to_repo>/<feature_name>/qa
+      REPO_SUB: ${CI_COMMIT_REF_SLUG}/
+      IMAGE_REPO: ${CI_REGISTRY_IMAGE}/${REPO_SUB}${IMAGE_TYPE}    #<path_to_repo>/<feature_name>/qa
       IMAGE_TAG: $CI_COMMIT_SHORT_SHA
       ENVIRONMENT: $DEV_ENV_NAME
       KUBE_NAMESPACE: ${DEV_ENV_NAME}-${CI_COMMIT_REF_SLUG}

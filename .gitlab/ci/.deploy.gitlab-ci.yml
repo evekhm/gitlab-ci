@@ -155,7 +155,6 @@ patch:
   - export ENVIRONMENT=$CI_ENVIRONMENT_NAME
   - echo CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
   - echo CI_MERGE_REQUEST_SOURCE_BRANCH_NAME=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME #for the feature, Application images are stored in the 'feature_name path
-  - export REPO_SUB=${CI_COMMIT_BRANCH:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/
   - echo REPO_SUB=$REPO_SUB
   - *deploy_applications
   artifacts:
