@@ -20,6 +20,8 @@ image: google/cloud-sdk
 .kube-context:
   before_script:
   - set -x
+  # Temp fix fir missing SLUG for CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  - KUBE_NAMESPACE="$(printf "${KUBE_NAMESPACE}" | tr -c 'a-zA-Z0-9_.-' - | sed 's/^[.-]*//' | cut -c -128 | tr '[:upper:]' '[:lower:]')"
   - |
     if [ -n "$KUBE_CONTEXT" ]; then
         echo "Setting KUBE_CONTEXT to $KUBE_CONTEXT"
