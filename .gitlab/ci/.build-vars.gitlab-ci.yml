@@ -14,7 +14,9 @@ variables:
 .build_vars:
   rules:
   # DEMO Deployment on commit to the main branch => Released images
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  # Note: When Commit is done on development branch <branch-name> for application, Pipeline is triggered for deployment. If Deploy Applications project has <branch-name> branch, it would be used for deployment.
+  #       However, it is not required and by default it would use the main branch. In this case, we do not want our changes to go to Production, they should go to the default Development environment.
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && ($PIPELINE_TRIGGERED != 'true' || ($PIPELINE_TRIGGERED == 'true' && $ENVIRONMENT == 'demo'))
     variables:
       IMAGE_TYPE: $RELEASED
       REPO_SUB: ""
@@ -38,7 +40,7 @@ variables:
       PROJECT_ID: $PROJECT_ID_TEST
 
   # DEVELOPMENT Deployment on commit to the feature branch
-  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+  - if: ($CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event") || ($PIPELINE_TRIGGERED == 'true' && $ENVIRONMENT == 'development')
     variables:
       IMAGE_TYPE: $QA
       REPO_SUB: ${CI_COMMIT_REF_SLUG}/
