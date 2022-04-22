@@ -415,3 +415,17 @@ Setting KUBE_CONTEXT to $GITLAB_AGENT
 ++ kubectl config use-context '$GITLAB_AGENT'
 error: no context exists with the name: "$GITLAB_AGENT"
 ```
+
+### “No permissions to trigger downstream pipeline”
+
+When a user with "Developer" role pushes to the application branch, the Down Stream Deployment project cannot be triggered due to the "lack of privileges". 
+This is a know [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/326941) with GitLab being P2.
+
+There are two workarounds as mentioned [here](https://gitlab.com/gitlab-org/gitlab/-/issues/326941):
+- [Allow developers merge access to the downstream pipeline ](https://gitlab.com/gitlab-org/gitlab/-/issues/326941#note_896385327)
+- [Or Use a token in the trigger YAML file](https://gitlab.com/gitlab-org/gitlab/-/issues/326941#note_826667259).
+
+As a quick fix, I am using the first solution, since currently this Gitlab project is for internal use only.
+GitLab Settings -> Protected branches ->Allowed to Merge -> Developers + Maintainers
+
+![](img/protected_branches.png)
