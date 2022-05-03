@@ -82,7 +82,7 @@ image: google/cloud-sdk
 .cluster_patch: &cluster_patch
 - echo "Patching image $IMAGE of application $APPLICATION in environment $ENVIRONMENT with namespace $KUBE_NAMESPACE"
 - if [ -n "$CI_COMMIT_BRANCH" ]; then echo source branch is  $CI_COMMIT_BRANCH; fi
-- if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered my merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
+- if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered by merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
 - |
   if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
     echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"

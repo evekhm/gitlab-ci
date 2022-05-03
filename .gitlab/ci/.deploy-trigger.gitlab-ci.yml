@@ -34,10 +34,11 @@ variables:
       UPSTREAM_PROJECT_PATH: %s
       ENVIRONMENT: %s
       KUBE_NAMESPACE: %s
+      CI_UPSTREAM_PIPELINE_SOURCE: %s
       PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
     trigger:
       project: %s
-      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  ${ENVIRONMENT} ${KUBE_NAMESPACE} ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} >> "${TRIGGER_FILE}"
+      branch: %s"  ${IMAGE} ${CI_PROJECT_NAME} ${CI_PROJECT_PATH}  ${ENVIRONMENT} ${KUBE_NAMESPACE} ${CI_PIPELINE_SOURCE} ${DEPLOY_PROJECT} ${TRIGGER_BRANCH} >> "${TRIGGER_FILE}"
 - cat "${TRIGGER_FILE}"
 
 # Check if the branch with the same name as commit branch exists for the DEPLOY_PROJECT.

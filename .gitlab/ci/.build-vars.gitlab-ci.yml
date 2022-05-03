@@ -16,7 +16,7 @@ variables:
   # DEMO Deployment on commit to the main branch => Released images
   # Note: When Commit is done on development branch <branch-name> for application, Pipeline is triggered for deployment. If Deploy Applications project has <branch-name> branch, it would be used for deployment.
   #       However, it is not required and by default it would use the main branch. In this case, we do not want our changes to go to Production, they should go to the default Development environment.
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && ($PIPELINE_TRIGGERED != 'true' || ($PIPELINE_TRIGGERED == 'true' && $ENVIRONMENT == 'demo'))
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && ($PIPELINE_TRIGGERED != 'true' || $ENVIRONMENT == 'demo')
     variables:
       IMAGE_TYPE: $RELEASED
       REPO_SUB: ""
@@ -28,7 +28,9 @@ variables:
       PROJECT_ID: $PROJECT_ID_DEMO
 
   # TEST Deployment on Merge Request
-  - if: $CI_MERGE_REQUEST_ID
+  # When merge request on application triggers downstream deploy project, CI_MERGE_REQUEST_ID will be empty when running from the Deploy project context.
+  # So we pass that info using CI_UPSTREAM_PIPELINE_SOURCE
+  - if: $CI_MERGE_REQUEST_ID || ($CI_UPSTREAM_PIPELINE_SOURCE == "merge_request_event")
     variables:
       IMAGE_TYPE: $MR
       REPO_SUB: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/
