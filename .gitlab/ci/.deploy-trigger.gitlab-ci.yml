@@ -34,7 +34,7 @@ variables:
       UPSTREAM_PROJECT_PATH: %s
       ENVIRONMENT: %s
       KUBE_NAMESPACE: %s
-      CI_UPSTREAM_PIPELINE_SOURCE: %s
+      TEST: %s
       PIPELINE_TRIGGERED: 'true' #workaround because CI_PIPELINE_TRIGGERED is not working in GitLab!
     trigger:
       project: %s
