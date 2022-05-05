@@ -107,7 +107,7 @@ image: google/cloud-sdk
       IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
       IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
       echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED
-      if $CHEK_DEPLOYMENT_EXISTS; then 
+      if [ -n $CHEK_DEPLOYMENT_EXISTS ]; then 
         DEPLOYMENT_EXISTS=$(kubectl get deployment  ${APPLICATION} -n $KUBE_NAMESPACE 2>/dev/null)
         if [ -n "$DEPLOYMENT_EXISTS" ]; then
           echo "Skipping deployment of  ${APPLICATION} since it is already running" 
