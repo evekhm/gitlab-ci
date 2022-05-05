@@ -49,7 +49,6 @@ image: google/cloud-sdk
   fi
 
 
-
 .prepare_cluster: &prepare
 - if [ -n "$KUBE_NAMESPACE" ]; then kubectl get namespace "$KUBE_NAMESPACE" 2>/dev/null || kubectl create namespace "$KUBE_NAMESPACE"; fi
 - *create_secret
@@ -83,7 +82,7 @@ image: google/cloud-sdk
 .cluster_patch: &cluster_patch
 - echo "Patching image $IMAGE of application $APPLICATION in environment $ENVIRONMENT with namespace $KUBE_NAMESPACE"
 - if [ -n "$CI_COMMIT_BRANCH" ]; then echo source branch is  $CI_COMMIT_BRANCH; fi
-- if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered by merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
+- if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then echo triggered by Merge Request $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA; fi
 - |
   if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
     echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"
@@ -92,22 +91,6 @@ image: google/cloud-sdk
     echo "Skipping deploy step since ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} does not exist"
   fi
 - kubectl get pods -n "$KUBE_NAMESPACE"
-
-# Pipeline was triggered - check the branch
-patch:
-  stage: deploy
-  environment:
-    name: $ENVIRONMENT
-  extends: [ .kube-context ]
-  script:
-  - APPLICATION=$UPSTREAM_PROJECT_NAME
-  - *echo
-  - *prepare
-  - *cluster_patch
-  rules:
-  - if: '$PIPELINE_TRIGGERED == null'
-    when: never
-  - !reference [.build_vars, rules]
 
 
 .deploy_applications: &deploy_applications
@@ -124,6 +107,13 @@ patch:
       IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
       IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
       echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED
+      if $CHEK_DEPLOYMENT_EXISTS; then 
+        DEPLOYMENT_EXISTS=$(kubectl get deployment  ${APPLICATION} -n $KUBE_NAMESPACE 2>/dev/null)
+        if [ -n "$DEPLOYMENT_EXISTS" ]; then
+          echo "Skipping deployment of  ${APPLICATION} since it is already running" 
+          continue
+        fi
+      fi
       docker manifest inspect $IMAGE > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
       echo $IMAGE, $IMAGE_EXISTS
       if [ $IMAGE_EXISTS -eq '1' ]; then
@@ -140,6 +130,28 @@ patch:
       fi
   done
 - kubectl get pods -n "$KUBE_NAMESPACE"
+
+# Pipeline was triggered - check the branch
+patch:
+  stage: deploy
+  environment:
+    name: $ENVIRONMENT
+  extends: [ .kube-context ]
+  variables:
+    CHEK_DEPLOYMENT_EXISTS: 'true' #Not to overwrite the patched version when checking for all other workloads
+  script:
+  - APPLICATION=$UPSTREAM_PROJECT_NAME
+  - *echo
+  - *prepare
+  - *cluster_patch
+  - *deploy_applications # Sometimes all other workloads have not been yet deployed, and only one is patched based on this trigger. We need to get all others rolling as well and skip the one patched
+  rules:
+  - if: '$PIPELINE_TRIGGERED == null'
+    when: never
+  - !reference [.build_vars, rules]
+
+
+
 
 .prepare:
   stage: prepare
