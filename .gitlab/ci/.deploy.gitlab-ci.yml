@@ -104,27 +104,24 @@ image: google/cloud-sdk
   do
       APPLICATION=$(basename ${dir%*/})
       APP_REPO="${CI_REGISTRY}/${APPLICATION_NAMESPACE}/${APPLICATION}"
-      IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
-      IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
-      echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED
-      if [ -n "$CHEK_DEPLOYMENT_EXISTS" ]; then 
-        DEPLOYMENT_EXISTS=$(kubectl get deployment  ${APPLICATION} -n $KUBE_NAMESPACE 2>/dev/null)
-        if [ -n "$DEPLOYMENT_EXISTS" ]; then
-          echo "Skipping deployment of  ${APPLICATION} since it is already running" 
-          continue
-        else
-          echo "Proceeding with deployment"
+
+      if [ -n "$APPLICATION_UPDATED" ] && [ -n "$IMAGE_UPDATED" ] && [[ "$APPLICATION_UPDATED" == "$APPLICATION" ]]; then
+          IMAGE=$IMAGE_UPDATED
+          echo "Using Image that been built in the Application Pipeline $IMAGE_UPDATED"
+      else
+        IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
+        IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
+        echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED  
+        docker manifest inspect $IMAGE > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
+        echo $IMAGE, $IMAGE_EXISTS
+        if [ $IMAGE_EXISTS -eq '1' ]; then
+            docker manifest inspect $IMAGE_RELEASED > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
+            if [ $IMAGE_EXISTS -eq '0' ]; then IMAGE=$IMAGE_RELEASED; fi
         fi
+        echo $IMAGE, $IMAGE_EXISTS
       fi
-      echo "Debugging ..."
-      docker manifest inspect $IMAGE > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
-      echo $IMAGE, $IMAGE_EXISTS
-      if [ $IMAGE_EXISTS -eq '1' ]; then
-          docker manifest inspect $IMAGE_RELEASED > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
-          if [ $IMAGE_EXISTS -eq '0' ]; then IMAGE=$IMAGE_RELEASED; fi
-      fi
-      echo $IMAGE, $IMAGE_EXISTS
-      echo "APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"
+  
+      echo "APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT"  
       if [ -f ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT} ]; then
         echo "Running deploy step with APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT ..."
         APPLICATION=$APPLICATION IMAGE=$IMAGE KUBE_NAMESPACE=$KUBE_NAMESPACE ENVIRONMENT=$ENVIRONMENT bash ${CI_PROJECT_DIR}/${DEPLOY_SCRIPT}
@@ -143,10 +140,11 @@ patch:
   variables:
     CHEK_DEPLOYMENT_EXISTS: 'true' #Not to overwrite the patched version when checking for all other workloads
   script:
-  - APPLICATION=$UPSTREAM_PROJECT_NAME
+  - APPLICATION_UPDATED=$UPSTREAM_PROJECT_NAME
+  - IMAGE_UPDATED=$IMAGE
   - *echo
   - *prepare
-  - *cluster_patch
+  #- *cluster_patch
   - *deploy_applications # Sometimes all other workloads have not been yet deployed, and only one is patched based on this trigger. We need to get all others rolling as well and skip the one patched
   rules:
   - if: '$PIPELINE_TRIGGERED == null'
