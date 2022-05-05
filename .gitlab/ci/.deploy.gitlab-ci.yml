@@ -107,13 +107,16 @@ image: google/cloud-sdk
       IMAGE="${APP_REPO}/${REPO_SUB:-}${IMAGE_TYPE}"
       IMAGE_RELEASED="${APP_REPO}/${RELEASED}"
       echo IMAGE=$IMAGE, IMAGE_RELEASED=$IMAGE_RELEASED
-      if [ -n $CHEK_DEPLOYMENT_EXISTS ]; then 
+      if [ -n "$CHEK_DEPLOYMENT_EXISTS" ]; then 
         DEPLOYMENT_EXISTS=$(kubectl get deployment  ${APPLICATION} -n $KUBE_NAMESPACE 2>/dev/null)
         if [ -n "$DEPLOYMENT_EXISTS" ]; then
           echo "Skipping deployment of  ${APPLICATION} since it is already running" 
           continue
+        else
+          echo "Proceeding with deployment"
         fi
       fi
+      echo "Debugging ..."
       docker manifest inspect $IMAGE > /dev/null 2>&1 && IMAGE_EXISTS=0 || IMAGE_EXISTS=1
       echo $IMAGE, $IMAGE_EXISTS
       if [ $IMAGE_EXISTS -eq '1' ]; then
@@ -149,8 +152,6 @@ patch:
   - if: '$PIPELINE_TRIGGERED == null'
     when: never
   - !reference [.build_vars, rules]
-
-
 
 
 .prepare:
