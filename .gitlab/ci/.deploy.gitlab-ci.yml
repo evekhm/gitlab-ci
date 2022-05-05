@@ -192,8 +192,7 @@ prepare_main:
   rules:
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
-  - if: #exclude when NOT a MR or MR not to the main branch
-        # When merge request on app level, check for $CI_UPSTREAM_PIPELINE_SOURCE
+  - if: #exclude when NOT a MR or MR not to the main branch; When merge request on app level, check for $CI_UPSTREAM_PIPELINE_SOURCE
     ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_UPSTREAM_PIPELINE_SOURCE != "merge_request_event") || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
     when: never
 
