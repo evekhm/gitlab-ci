@@ -77,6 +77,7 @@ image: google/cloud-sdk
 - echo CI_PIPELINE_SOURCE = $CI_PIPELINE_SOURCE
 - echo CI_PIPELINE_TRIGGERED = $CI_PIPELINE_TRIGGERED
 - echo PIPELINE_TRIGGERED = $PIPELINE_TRIGGERED
+- echo CI_UPSTREAM_PIPELINE_SOURCE = $CI_UPSTREAM_PIPELINE_SOURCE
 
 # Runs Patching based on the Application Build Image Trigger. Path to the Image, Namespace and Application are passed through the pipeline.
 .cluster_patch: &cluster_patch
@@ -191,7 +192,9 @@ prepare_main:
   rules:
   - if: $PIPELINE_TRIGGERED #exclude patching triggered
     when: never
-  - if: $CI_PIPELINE_SOURCE != "merge_request_event" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH #exclude when NOT a MR or MR not to the main branch
+  - if: #exclude when NOT a MR or MR not to the main branch
+        # When merge request on app level, check for $CI_UPSTREAM_PIPELINE_SOURCE
+    ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_UPSTREAM_PIPELINE_SOURCE != "merge_request_event") || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
     when: never
 
 deploy_mr:
