@@ -1,6 +1,6 @@
 variables:
   # Environment names
-  DEV_ENV_NAME: 'development'
+  DEV_ENV_NAME: 'dev'
   TEST_ENV_NAME: 'test'
   DEMO_ENV_NAME: 'demo'
 
